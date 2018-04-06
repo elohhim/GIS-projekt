@@ -8,6 +8,6 @@ losowe krawędzie tych sieci (udany atak to taki, który prowadzi do rozspójnie
 sieci).
 
 ### Autorzy: 
-Jan Kumor, Patryk Kocielnik
+Jan Kumor, Patryk Kocielnik  
 Politechnika Warszawska  
 Wydział Elektroniki i Technik Informacyjnych
