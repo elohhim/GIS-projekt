@@ -1,0 +1,36 @@
+# Głęboka sieć neuronowa do wyznaczania podobieństwa semantycznego zdań w języku angielskim
+
+## Raport wstępny do projektu
+
+### Patryk Kocielnik, 29.11.2017r.
+
+---
+
+## Język implementacji:
+### Python
+
+## Składowe projektu
+
+1. Zapoznać się z pracą magisterską i przygotowanym rozwiązaniem,
+2. Stworzyć analogiczne rozwiązanie z wykorzystaniem bramek LSTM i GRU,
+3. Policzyć miary F dla otrzymanego i wcześniejszego modelu (dla wszystkich dostępnych danych z SemEval 2015 - STS i Interpretable STS)
+
+## Projekt rozwiązania
+
+Rozwiązaniem zadania projektowego będzie aplikacja napisana w języku Python, która jako parametr przyjmie dwa oddzielne łańcuchy znaków tworzące zdania w języku angielskim.
+
+Zdania zostaną następnie porównane, a zwrócony wynik w postaci liczby rzeczywistej określał będzie podobieństwo semantyczne obu zdań.
+
+## Założenia
+
+1. Nie ma limitu co do długości zdań wejściowych,
+2. Skala wyściowej oceny podobieństwa semantycznego należy do przedziału: [0 (brak związku), 5 (semantyczna równoważność)],
+
+## Interfejs aplikacji
+
+Interfejsem aplikacji będzie konsola tekstowa. Motywacją tego podejścia jest łatwość łączenia aplikacji z interfejsem tekstowym w filtry, które później wykorzystać można do analizy bardziej złożonych struktur tekstowych.
+
+## Przykładowe przypadki testowe
+
+1. `A young person  deep in thought.` vs `A young man deep in thought.` -> $st > 3.5$ and $st <= 5$
+2. `A woman supervisor is instructing the male workers.	A woman is working as a nurse.
