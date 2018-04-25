@@ -15,6 +15,14 @@ The report (the deliverable) is in the main directory of the project in the PDF 
 
 To generate the report from files located in directory `in` where the report draft is located, issue the `make` command while in the project root directory.
 
+## Results
+
+Correct results in the graph below is what we are after. Then we need to aggregate similar results for varying graph sizes and connectivity factors (densities, `k`).
+
+![Sample results](workshop/src/graphs/erdos_100.png)
+
+The curve should grow with the horizontal variable, but it is yet unknown, at what proportion (if at *any* proportion at all, vide the notion of *scale-free nets*).
+
 ## Project structure
 
 Directory tree:
