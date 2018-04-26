@@ -1,13 +1,40 @@
-# GIS-projekt
-Realizacja projektu na przedmiot Grafy i Sieci, semestr 18L.
+Random-Attack Resilience of Random and Geometric Graphs
+=======================================================
 
-### Opis zadania:
-Dane są dwie sieci: euklidesowa i losowa (ER) o mniej więcej takiej samej liczbie
-wierzchołków i krawędzi. Porównać prawdopodobieństwa powodzenia ataku na
-losowe krawędzie tych sieci (udany atak to taki, który prowadzi do rozspójnienia
-sieci).
+(C) 2018 Jan Kumor, Patryk Kocielnik, Warsaw University of Technology
 
-### Autorzy: 
-Jan Kumor, Patryk Kocielnik  
-Politechnika Warszawska  
-Wydział Elektroniki i Technik Informacyjnych
+## Usage
+
+The class with experimental methods is `src/resiliences.py`.
+
+The main notebook for the experiment is `src/report.ipynb`.
+
+To run the notebook you need Jupyter Notebook (formerly iPython Notebook). Install with `pip install jupyter`.
+
+The report (the deliverable) is in the main directory of the project in the PDF file named `report.pdf`.
+
+To generate the report from files located in directory `in` where the report draft is located, issue the `make` command while in the project root directory.
+
+## Results
+
+Correct results in the graph below is what we are after. Then we need to aggregate similar results for varying graph sizes and connectivity factors (densities, `k`).
+
+![Sample results](workshop/src/graphs/erdos_100.png)
+
+The curve should grow with the horizontal variable, but it is yet unknown, at what proportion (if at *any* proportion at all, vide the notion of *scale-free nets*).
+
+## Project structure
+
+Directory tree:
+
+- `workshop` - Data needed to generate the deliverables (the project engine),
+  - `contract` - Requirements for the project,
+  - `in` - Source text of the report,
+  - `out` - Destination for the generated report,
+  - `src` - Source code of the experiment (a Python class + sauce & spinach).
+
+## Report
+
+The report is generated from Markdown.
+
+This approach saves a lot of lots in terms of generation time. To withess this miracle, say `cd workshop` and then `make`.
