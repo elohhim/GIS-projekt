@@ -17,10 +17,27 @@ e = resiliences.experiment(
         )
 
 e.save_plot("plot.svg")
-
 ```
 
 When routine finishes, collect the plot from the execution directory.
+
+## Current goal
+
+For the current step to be complete, the commands below should:
+
+- Display an averaged graph here in the notebook, and
+- Save the graph under the name given in the working directory.
+
+```python
+%matplotlib inline
+
+e = resiliences.experiment(size = 100, density = 0.1, graph_type = "random", epochs = 10)
+e.save_graph("graph.svg")
+```
+
+Currently, the notebook looks as presented in the image.
+
+![Running the experiment](workshop/src/running.png)
 
 ## Back-end details
 
