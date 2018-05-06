@@ -3,6 +3,7 @@
 from __future__ import division
 import os, igraph, random, distutils, math
 from IPython.display import SVG, display
+import numpy_indexed as npix
 
 class experiment:
     """Class integrating methods for graph-based experiments"""
@@ -514,6 +515,70 @@ class experiment:
 
         return df
 
+    def calculate_vertex_counts(self, factor = 1, vertex_count_top_exponent = 1):
+
+        counts = [factor * 100**n for n in range(1, vertex_count_top_exponent + 1)]
+        
+        return counts;
+
+    def calculate_densities(self, repetition_count = 10, power = 1):
+        vertex_counts = self.calculate_vertex_counts(vertex_count_top_exponent = power)
+
+        densities = [repetition_count * [self.calculate_density(n, density)] for n in vertex_counts for density in ["min", "avg", "max"]]
+        flattened = [val for sublist in densities for val in sublist]
+        densities = flattened
+        return densities
+
+    def get_results(self, vertex_counts, densities, graph_type="random"):
+
+        results_random = [(self.probe(n, density=d, type=graph_type)) for n in vertex_counts for d in densities]
+
+        return results_random
+
+    def results_filtered(self, results_random):
+
+        # Filter out graphs not complying to the vertex count requirement.
+        results_filtered = filter(lambda x: x[1] > 3, results_random)
+        results_filtered.sort()
+        return results_filtered
+
+    def get_results_internal(self, vertices = 10, density = 0.1):
+
+        # 10^exponent will be the number
+        # of vertices in the constructed graph.
+
+        exponent = log10(vertices)
+
+        vertex_counts = self.calculate_vertex_counts(
+            vertex_count_top_exponent = exponent
+            )
+
+        densities = self.calculate_densities()
+
+        results = self.get_results(vertex_counts, densities)
+
+        return results
+
+    def preprocess_results(self, results):
+
+        results = self.results_filtered(results)
+
+        return results
+
+    def group_plot(self, results, n, name=""):
+
+        data = self.preprocess_results(results)
+
+        x, y = [x[0] for x in data], [y[1] for y in data]
+
+        [x_unique, y_mean] = npix.group_by(x).mean(y)
+
+        data = zip(x, y)
+
+        #print data
+
+        self.plot_save(data, n, name);
+
     def worker(self, n, d, position):
         """Accepts thread-separated jobs."""
         
@@ -571,3 +636,22 @@ class experiment:
 # if __name__ == "__main__":
     
 #     main()
+
+    def __init__(self, size=100, density=0.1, graph_type = "random", epochs = 10):
+
+        """
+        The `size` variable is the exponent in the expression:
+           n = 10^size,
+        where n is the number of nodes in the graph.
+
+        The `density` variable is the
+        probability of two random nodes being connected, ie. edge probability.
+        """
+
+        print "Experiment initialized."
+
+        results = e.get_results_internal()
+
+        e.group_plot(results, 100, "plot.svg");
+
+        return results
