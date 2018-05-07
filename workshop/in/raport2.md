@@ -59,7 +59,7 @@ Pierwszym etapem będzie przyjęcie zadanej liczby wierzchołków oraz zadanej g
 
 Algorytm ten przyjmuje dwa argumenty: liczbę wierzchołków $n$ oraz współczynnik prawdopodobieństwa wystąpienia krawędzi $n$.
 
-Grafy losowe ER (model Erdős–Rényi) zostaną wygenerowane z użyciem funkcji 'Erdos_Renyi' klasy `Grah` pakietu _igraph_. Metoda ta przyjmuje jako parametry:
+Grafy losowe ER (model Erdős–Rényi) zostaną wygenerowane z użyciem funkcji `Erdos_Renyi` klasy `Grah` pakietu _igraph_. Metoda ta przyjmuje jako parametry:
 
 - liczbę wierzchołków grafu $n$
 - prawdopodobieństwo wystąpienia danej krawędzi $p$ lub zadaną liczbę krawędzi $m$.
@@ -68,14 +68,23 @@ Zgodnie z dokumentacją pakietu _igraph_ algorytm wykorzystywany w metodzie `Erd
 
 ~~Grafy euklidesowe generowane będą poprzez weryfikację, czy dany losowo wygenerowany graf posiada własności grafu euklidesowego. Wygenerowane grafy nie spełniające tego warunku będą odrzucane.~~
 
-Grafy euklidesowe zostaną wygenerowane z wykorzystaniem funkcji `GRG` klasy `Graph` z pakietu _python-igraph_. Metoda ta przyjmuje jako parametry liczbę wierzchołków grafu oraz promień. Algorytm generacji grafu polega na rozmieszczeniu w kwadracie jednostkowyn zadanej liczbie wierchołków a następnie połączenia krawędziami tych wierzchołków, które znajdują się od siebie w odległości mniejszej niż zadany promień. Zgodnie z dokumentacją pakietu _igraph_ algorytm wykorzystywany w metodzie `GRG` ma złożoność obliczeniową mniejszą niż $O(V^2+E). W celu uzyskania grafu o zadanej przybliżonej liczbie krawędzi zostanie wykorzystane podejście iteracyjne:
+Grafy euklidesowe zostaną wygenerowane z wykorzystaniem funkcji `GRG` klasy `Graph` z pakietu _igraph_. Metoda ta przyjmuje jako parametry liczbę wierzchołków grafu $n$ oraz promień $r$. Algorytm generacji grafu euklidesowego o n wierzchołkach:
 
-1. Dla wybranej wartości promienia wygeneruj graf euklidesowy o $n$ wierzchołkach z użyciem funkcji `GRG`,
+1. Rozmieść $n$ wierzchołków w kwadracie jednostkowym,
+2. Połącz krawędziami te wierzchołki, które znajdują się od siebie w odległości mniejszej niż zadany promień $r$.
+ 
+Zgodnie z dokumentacją pakietu _igraph_ algorytm wykorzystywany w metodzie `GRG` ma złożoność obliczeniową nie większą niż $O(|V|^2+|E|)$. 
+
+W celu uzyskania grafu o zadanej przybliżonej liczbie krawędzi  $m$ zostanie wykorzystane następujące podejście iteracyjne:
+
+1. Dla wybranej wartości promienia $r$ wygeneruj graf euklidesowy o $n$ wierzchołkach z użyciem funkcji `GRG`,
 2. Jeśli liczba krawędzi wygenerowanego grafu jest:
-   - znacząco mniejsza od zadanej liczby krawędzi, zwiększ wartość promienia,
-   - znacząco większa od zadanej liczby krawędzi, zmniejsz wartość promienia,
+   - znacząco mniejsza od zadanej liczby krawędzi, zwiększ wartość promienia $r$,
+   - znacząco większa od zadanej liczby krawędzi, zmniejsz wartość promienia $r$,
    - w przyliżeniu równa zadanej liczbie krawędzi, zwróć wygenerowany graf i zakończ algorytm,
 3. Wróc do punktu 1.
+
+Liczba krawędzi jest w przybliżeniu równa zadanej liczbie krawędzi gdy: $\frac{|m_{zad}-m|}{m_{zad}} < \varepsilon$. Gdzie $\varepsilon$ jest parametrem kontrolującym dokładność przybliżenia.
 
 ~~Złożoność obliczeniowa algorytmu:~~
 
@@ -94,19 +103,19 @@ Grafy euklidesowe zostaną wygenerowane z wykorzystaniem funkcji `GRG` klasy `Gr
 Do weryfikacji spójności grafów zostanie wykorzystana metoda `is_connected` klasy `GraphBase` z pakietu _python-igraph_. Opiera się ona na algorytmie przeszukiwania grafu wgłąb (ang. _depth-first search_, DFS). Pseudokod algorytmu DFS [\[2\]](http://eduinf.waw.pl/inf/alg/001_search/0128a.php), ~~który zostanie wykorzystany do badania spójności grafów,~~ przedstawiony został poniżej :
 
 1. Utwóż tablicę `visited` o `n` elementach,
-2. Tablicę `visited` wypełnij wartościami `false`,
+2. Tablicę `visited` wypełnij wartościami `false`,
 3. Utwórz pusty stos `S`,
 4. Inicjuj licznik odwiedzonych wierzchołków,
 5. Rozpocznij przejście DFS od wierzchołka 0,
 6. Wierzchołek oznacz jako odwiedzony,
 7. Przechodź przez graf dopóki stos `S` nie jest pusty, wykonując następujące kroki:
-  - Pobierz wierzchołek ze stosu,
-  - Pobrany wierzchołek usuń ze stosu,
-  - Zwiększ licznik odwiedzonych wierzchołków,
-  - Przejrzyj kolejnych sąsiadów,
-    - Szukaj do sąsiadów jeszcze nie odwiedzonych,
-    - Odznacz sąsiada jeśli jeszcze nie odwiedzony,
-    - Umieść sąsiada na stosie.
+   - Pobierz wierzchołek ze stosu,
+   - Pobrany wierzchołek usuń ze stosu,
+   - Zwiększ licznik odwiedzonych wierzchołków,
+   - Przejrzyj kolejnych sąsiadów,
+     - Szukaj do sąsiadów jeszcze nie odwiedzonych,
+     - Odznacz sąsiada jeśli jeszcze nie odwiedzony,
+     - Umieść sąsiada na stosie.
 Jeśli wszystkie wierzchołki zostały odwiedzone, graf jest spójny. W przeciwnym wypadku, graf jest niespójny.
 
 Złożoność czasowa algorytmu wynosi $O(E + V)$.
@@ -123,8 +132,8 @@ Testy zostaną przeprowadzone w następujący sposób:
       1. Krawędź ta zostanie usunięta z grafu (zostanie przeprowadzony atak na tę krawędź),
       2. Sprawdzona zostanie spójność grafu po przeprowadzeniu ataku,
       3. Jeśli graf nie jest spójny atak zakończył się powodzeniem,
-   2. Obliczone zostanie prawdopodobieństwo powodzenia ataku na losowo wybraną krawędź z badanego grafu, zgodnie ze wzorem: $p_i = n_{sukces} / m$
-4. Zgodnie ze wzorem: $p_śr = sum_{i=0}^{k} p_i / k$, zostanie obliczone średnie prawdopodobieństwo powodzenia ataku dla zestawu $k$ grafów testowych o przyjętych parametrach.
+   2. Obliczone zostanie prawdopodobieństwo powodzenia ataku na losowo wybraną krawędź z badanego grafu, zgodnie ze wzorem: $p_i = \frac{n_{sukces}}{m}$
+4. Zgodnie ze wzorem: $p_{sr} = \frac{\sum_{i=0}^{k} p_i}{k}$, zostanie obliczone średnie prawdopodobieństwo powodzenia ataku dla zestawu $k$ grafów testowych o przyjętych parametrach.
 
 ~~3. Spójność grafu zostanie sprawdzona i zapisana,~~
 ~~4. Obliczone zostanie prawdopodobieństwo rozspójnienia grafu $P$ jako iloraz: $rozspójnień / ataków$~~
@@ -143,8 +152,8 @@ oraz metadane. Najważniejszymi polami zawartymi w metadanych są:
 
 Każda z krawędzi grafu nieskierowanego jest modelowana jako nieuporządkowana para (dwuelementowy
 zbiór) etykiet oznaczających wierzchołki grafu. Krawędzie są etykietowane, a
-etykiety przyjmują wartości od 0 do $E - 1$. Etykiety wierzchołków przyjmują
-wartości od 0 do $V - 1$.
+etykiety przyjmują wartości od 0 do $|E| - 1$. Etykiety wierzchołków przyjmują
+wartości od 0 do $|V| - 1$.
 
 Przykładową, uproszczoną (pominięto etykiety krawędzi) strukturę grafu
 nieskierowanego przedstawiono poniżej:
