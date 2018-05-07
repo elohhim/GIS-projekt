@@ -175,3 +175,13 @@ nieskierowanego przedstawiono poniżej:
 
 Należy nadmienić, iż implementacja ta dopuszcza istnienie w grafie pętli. Jednak
 w projektowanym narzędziu grafy takie nie będą rozpatrywane.
+
+## Testy poprawności rozwiązania
+
+Poprawność zaproponowanego rozwiązania zostanie sprawdzona na podstawie przeprowadzenia testów dla prostych grafów, o niewielkiej liczbie wierzchołków i krawędzi. Dla tych grafów w prosty sposób można dokonać dokładnej analizy i obliczyć dla nich prawdopodobieństwa powodzenia ataku na losowo wybraną krawędź. Proponowane grafy testowe to:
+
+- 2 wierzchołki, 1 krawędź - oczekiwane prawdopodobieństwo powodzenia ataku 1.0
+- 3 wierzchołki, 2 krawędzie - oczekiwane prawdopodobieństwo powodzenia ataku 1.0
+- 3 wierzchołki, 3 krawędzie - oczekiwane prawdopodobieństwo powodzenia ataku 0.0
+- 4 wierzchołki, 3 krawędzie - oczekiwane prawdopodobieństwo powodzenia ataku 0.8
+- 4 wierzchołki, 4 krawędzie - oczekiwane prawdopodobieństwo powodzenia ataku 0.2
