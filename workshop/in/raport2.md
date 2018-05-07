@@ -74,7 +74,7 @@ Grafy euklidesowe zostaną wygenerowane z wykorzystaniem funkcji `GRG` klasy `Gr
 2. Jeśli liczba krawędzi wygenerowanego grafu jest:
    - znacząco mniejsza od zadanej liczby krawędzi, zwiększ wartość promienia,
    - znacząco większa od zadanej liczby krawędzi, zmniejsz wartość promienia,
-   - w przyliżeniu równa zadanej liczbie krawędzi, zwróć wygenerowany graf i kończąc algorytm,
+   - w przyliżeniu równa zadanej liczbie krawędzi, zwróć wygenerowany graf i zakończ algorytm,
 3. Wróc do punktu 1.
 
 ~~Złożoność obliczeniowa algorytmu:
