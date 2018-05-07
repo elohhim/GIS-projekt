@@ -17,7 +17,7 @@ Dane są dwie sieci: euklidesowa i losowa (ER) o mniej więcej takiej samej licz
 
 - Środowisko rozwiązania: stacja robocza pod kontrolą systemu GNU/Linux,
 - Język implementacji rozwiązania: Python,
-- Narzędzie do wizualizacji wyników i referencyjnej weryfikacji rozwiązań: ~~Graph-Tool - biblioteka dla języka Python~~ igraph - bilbioteka języka C wraz z interfejsem dla języka Python (python-igraph),
+- Narzędzie do wizualizacji wyników i referencyjnej weryfikacji rozwiązań: ~~Graph-Tool - biblioteka dla języka Python~~ _igraph_ - bilbioteka języka C, _python-igraph_ interfejs programistyczny biblioteki _igraph_ dla języka Python,
 
 
 ## Składniki rozwiązania
@@ -59,23 +59,39 @@ Pierwszym etapem będzie przyjęcie zadanej liczby wierzchołków oraz zadanej g
 
 Algorytm ten przyjmuje dwa argumenty: liczbę wierzchołków $n$ oraz współczynnik prawdopodobieństwa wystąpienia krawędzi $n$.
 
-Grafy euklidesowe generowane będą poprzez weryfikację, czy dany losowo wygenerowany graf posiada własności grafu euklidesowego. Wygenerowane grafy nie spełniające tego warunku będą odrzucane.
+Grafy losowe ER (model Erdős–Rényi) zostaną wygenerowane z użyciem funkcji 'Erdos_Renyi' klasy `Grah` pakietu _igraph_. Metoda ta przyjmuje jako parametry:
 
-Złożoność obliczeniowa algorytmu:
+- liczbę wierzchołków grafu $n$
+- prawdopodobieństwo wystąpienia danej krawędzi $p$ lub zadaną liczbę krawędzi $m$.
 
-$(n * (n - 1)) / 2$
+Zgodnie z dokumentacją pakietu _igraph_ algorytm wykorzystywany w metodzie `Erdos_Renyi` ma złożoność obliczeniową równą $O(|V|+|E|)$
 
-Oczekiwana liczba krawędzi:
+~~Grafy euklidesowe generowane będą poprzez weryfikację, czy dany losowo wygenerowany graf posiada własności grafu euklidesowego. Wygenerowane grafy nie spełniające tego warunku będą odrzucane.~~
 
-$(n * (n - 1) * p) / 2$
+Grafy euklidesowe zostaną wygenerowane z wykorzystaniem funkcji `GRG` klasy `Graph` z pakietu _python-igraph_. Metoda ta przyjmuje jako parametry liczbę wierzchołków grafu oraz promień. Algorytm generacji grafu polega na rozmieszczeniu w kwadracie jednostkowyn zadanej liczbie wierchołków a następnie połączenia krawędziami tych wierzchołków, które znajdują się od siebie w odległości mniejszej niż zadany promień. Zgodnie z dokumentacją pakietu _igraph_ algorytm wykorzystywany w metodzie `GRG` ma złożoność obliczeniową mniejszą niż $O(V^2+E). W celu uzyskania grafu o zadanej przybliżonej liczbie krawędzi zostanie wykorzystane podejście iteracyjne:
 
-Spodziewany średni stopień wierzchołka:
+1. Dla wybranej wartości promienia wygeneruj graf euklidesowy o $n$ wierzchołkach z użyciem funkcji `GRG`,
+2. Jeśli liczba krawędzi wygenerowanego grafu jest:
+   - znacząco mniejsza od zadanej liczby krawędzi, zwiększ wartość promienia,
+   - znacząco większa od zadanej liczby krawędzi, zmniejsz wartość promienia,
+   - w przyliżeniu równa zadanej liczbie krawędzi, zwróć wygenerowany graf i kończąc algorytm,
+3. Wróc do punktu 1.
 
-$(n - 1) * p$
+~~Złożoność obliczeniowa algorytmu:
+
+~~$(n * (n - 1)) / 2$
+
+~~Oczekiwana liczba krawędzi:
+
+~~$(n * (n - 1) * p) / 2$
+
+~~Spodziewany średni stopień wierzchołka:
+
+~~$(n - 1) * p$
 
 ## Weryfikacja spójności grafu
 
-Pseudokod algorytmu DFS [\[2\]](http://eduinf.waw.pl/inf/alg/001_search/0128a.php), który zostanie wykorzystany do badania spójności grafów, przedstawiony został poniżej :
+Do weryfikacji spójności grafów zostanie wykorzystana metoda `is_connected` klasy `GraphBase` z pakietu _python-igraph_. Opiera się ona na algorytmie przeszukiwania grafu wgłąb (ang. _depth-first search_, DFS). Pseudokod algorytmu DFS [\[2\]](http://eduinf.waw.pl/inf/alg/001_search/0128a.php), ~~który zostanie wykorzystany do badania spójności grafów,~~ przedstawiony został poniżej :
 
 1. Utwóż tablicę `visited` o `n` elementach,
 2. Tablicę `visited` wypełnij wartościami `false`,
@@ -93,7 +109,7 @@ Pseudokod algorytmu DFS [\[2\]](http://eduinf.waw.pl/inf/alg/001_search/0128a.ph
     - Umieść sąsiada na stosie.
 Jeśli wszystkie wierzchołki zostały odwiedzone, graf jest spójny. W przeciwnym wypadku, graf jest niespójny.
 
-Złożoność czasowa algorytmu wynosi $O(E + V)$
+Złożoność czasowa algorytmu wynosi $O(E + V)$.
 
 ## Schemat testów
 
