@@ -17,21 +17,28 @@ Dane są dwie sieci: euklidesowa i losowa (ER) o mniej więcej takiej samej licz
 
 - Środowisko rozwiązania: stacja robocza pod kontrolą systemu GNU/Linux,
 - Język implementacji rozwiązania: Python,
-- Narzędzie do wizualizacji wyników i referencyjnej weryfikacji rozwiązań: ~~Graph-Tool - biblioteka dla języka Python~~ _igraph_ - bilbioteka języka C, _python-igraph_ interfejs programistyczny biblioteki _igraph_ dla języka Python,
+~~- Narzędzie do wizualizacji wyników i referencyjnej weryfikacji rozwiązań: Graph-Tool - biblioteka dla języka Python~~ 
+- Narzędzia do analizy i wizualizacji grafów: 
+  - _igraph_ - bilbioteka języka C [\[1\]](http://igraph.org/c/doc/),
+  - _python-igraph_ interfejs programistyczny biblioteki _igraph_ dla języka Python [\[2\]](http://igraph.org/python/doc/igraph-module.html),
 
 
 ## Składniki rozwiązania
 
-1. Moduł generacji sieci: euklidesowych oraz losowych, o zadanej liczbie wierzchołków.
+1. Moduł generacji sieci: euklidesowych oraz losowych, o zadanej liczbie wierzchołków:
    - Sposób wywołania: `graph = generate_graph(graph_type, vertex_probability)`,
    - Rezultat wywołania: `graph` jako dwuwymiarowa macierz sąsiedztwa (`int` * `int`) opisująca wygenerowany graf,
-   - Podstawą komponentu będzie moduł generacji sieci z pakietu Graph-Tools [\[1\]](https://graph-tool.skewed.de/static/doc/generation.html#graph_tool.generation.random_graph).
-2. Filtr usuwający z grafu losowo wybraną krawędź
-   - sposób wywołania: `new_graph = break(graph)`.
-   - rezultat wywołania: `new_graph` jako graf pozbawiony losowo wybranej krawędzi.
-3. Analizator spójności sieci
-   - Sposób wywołania: consistency\_degree(graph),
-   - Rezultat wywołania: $n$ (`int`) jako liczba oznaczająca stan spójności grafu wejściowego: $0$ - niespójny, $1$ - spójny,
+   - Podstawą komponentu ~~będzie moduł generacji sieci z pakietu Graph-Tools [\[1\]](https://graph-tool.skewed.de/static/doc/generation.html#graph_tool.generation.random_graph).~~ będą moduły generowania sieci z pakietu _igraph_ - funkcje `Erdos_Renyi` (dla grafów losowych) oraz `GRG` (dla grafów euklidesowych).
+2. Filtr usuwający z grafu losowo wybraną krawędź:
+   - Sposób wywołania: `new_graph = break(graph)`.
+   - Rezultat wywołania: `new_graph` jako graf pozbawiony losowo wybranej krawędzi.
+3. Analizator spójności sieci:
+   - Sposób wywołania: ~~consistency\_degree(graph),~~ `is_connected(graph)`
+   - Rezultat wywołania: ~~$n$ (`int`) jako liczba oznaczająca stan spójności grafu wejściowego: $0$ - niespójny, $1$ - spójny.~~ $c$ (`bool`) flaga przyjmująca wartość `True` jeśli graf jest spójny, przeciwnie`False`.
+4. Moduł analizy ataku na zadany graf:
+   - Sposób wywołania: `analyse\_attack(graph)`,
+   - Rezultat wywołania: $p$ (`float`) jako prawdopodobieństwo powodzenia ataku na losowo wybraną krawędź zadanego grafu wejściowego,
+   - Moduł przeprowadza próby ataku na każdą z krawędzi grafu i na podstawie ich wyników oblicza prawdopodobieństwo powodzenia.
 
 ## Interfejs aplikacji
 
@@ -152,8 +159,8 @@ oraz metadane. Najważniejszymi polami zawartymi w metadanych są:
 
 Każda z krawędzi grafu nieskierowanego jest modelowana jako nieuporządkowana para (dwuelementowy
 zbiór) etykiet oznaczających wierzchołki grafu. Krawędzie są etykietowane, a
-etykiety przyjmują wartości od 0 do $|E| - 1$. Etykiety wierzchołków przyjmują
-wartości od 0 do $|V| - 1$.
+etykiety przyjmują wartości od $0$ do $|E| - 1$. Etykiety wierzchołków przyjmują
+wartości od $0$ do $|V| - 1$.
 
 Przykładową, uproszczoną (pominięto etykiety krawędzi) strukturę grafu
 nieskierowanego przedstawiono poniżej:
