@@ -99,19 +99,31 @@ Złożoność czasowa algorytmu wynosi $O(E + V)$
 
 Testy zostaną przeprowadzone w następujący sposób:
 
-1. Wygenerowany zostanie zestaw grafów testowych o podanych wcześniej parametrach,
-2. Z każdego z grafów zostanie usunięta losowo wybrana krawędź,
-3. Spójność grafu zostanie sprawdzona i zapisana,
-4. Obliczone zostanie prawdopodobieństwo rozspójnienia grafu $P$ jako iloraz: $rozspójnień / ataków$
+1. Z wcześniej zdefiniowanej listy zostanie przyjęty zestaw parametrów testu,
+2. Wygenerowany zostanie zestaw $k$ grafów testowych o przyjętych wcześniej parametrach,
+~~2. Z każdego z grafów zostanie usunięta losowo wybrana krawędź,~~
+3. Dla każdego z grafów:
+  3.1. Dla każdej z krawędzi badanego grafu:
+    3.1.1. Krawędź ta zostanie usunięta z grafu (zostanie przeprowadzony atak na tę krawędź),
+    3.1.2. Sprawdzona zostanie spójność grafu po przeprowadzeniu ataku,
+    3.1.3. Jeśli graf nie jest spójny atak zakończył się powodzeniem,
+  3.2. Obliczone zostanie prawdopodobieństwo powodzenia ataku na losowo wybraną krawędź z badanego grafu, zgodnie ze wzorem: $p_i = n_{sukces} / m$
+4. Zgodnie ze wzorem: $p_śr = sum_{i=0}^{k} p_i / k$, zostanie obliczone średnie prawdopodobieństwo powodzenia ataku dla zestawu $k$ grafów testowych o przyjętych parametrach.
+~~3. Spójność grafu zostanie sprawdzona i zapisana,~~
+~~4. Obliczone zostanie prawdopodobieństwo rozspójnienia grafu $P$ jako iloraz: $rozspójnień / ataków$~~
+5. Jeśli pozostały nieprzetestowane zestawy parametrów, nastąpi powrót do punktu 1.
 
 ## Model danych
 
 Projektowane narzędzie wykorszystywać będzie implementacje grafów nieskierowanych z biblioteki _igraph_.
 
 Graf we wspomnianej implementacji jest reprezentowany jako wielozbiór krawędzi
-oraz metadane. Najważniejszymi polami zawartymi w metadanych to liczba
-wierzchołków oraz określenie czy graf jest skierowany czy nie. Każda z krawędzi
-grafu nieskierowanego jest modelowana jako nieuporządkowana para (dwuelementowy
+oraz metadane. Najważniejszymi polami zawartymi w metadanych są:
+
+* liczba wierzchołków grafu,
+* określenie czy graf jest skierowany czy nie.
+
+Każda z krawędzi grafu nieskierowanego jest modelowana jako nieuporządkowana para (dwuelementowy
 zbiór) etykiet oznaczających wierzchołki grafu. Krawędzie są etykietowane, a
 etykiety przyjmują wartości od 0 do $E - 1$. Etykiety wierzchołków przyjmują
 wartości od 0 do $V - 1$.
