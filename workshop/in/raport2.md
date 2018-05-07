@@ -77,17 +77,17 @@ Grafy euklidesowe zostaną wygenerowane z wykorzystaniem funkcji `GRG` klasy `Gr
    - w przyliżeniu równa zadanej liczbie krawędzi, zwróć wygenerowany graf i zakończ algorytm,
 3. Wróc do punktu 1.
 
-~~Złożoność obliczeniowa algorytmu:
+~~Złożoność obliczeniowa algorytmu:~~
 
-~~$(n * (n - 1)) / 2$
+~~$(n * (n - 1)) / 2$~~
 
-~~Oczekiwana liczba krawędzi:
+~~Oczekiwana liczba krawędzi:~~
 
-~~$(n * (n - 1) * p) / 2$
+~~$(n * (n - 1) * p) / 2$~~
 
-~~Spodziewany średni stopień wierzchołka:
+~~Spodziewany średni stopień wierzchołka:~~
 
-~~$(n - 1) * p$
+~~$(n - 1) * p$~~
 
 ## Weryfikacja spójności grafu
 
