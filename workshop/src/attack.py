@@ -4,17 +4,27 @@ import random
 import igraph
 
 
-def generate_euclidean_graph(n, m):
+def generate_euclidean_graph(n, m, dcc=True, *, epsilon=0.01):
     """Generates euclidean graph of given number of vertices and edges.
 
-    Arguments:
-        n: number of vertices.
-        m: number of edges.
+    NOTE: Not very efficient and still not sure what euclidean graphs are.
 
-    Returns:
-        Generated euclidean graph.
+    :param n: Number of vertices.
+    :param m: Approximate number of edges.
+    :param dcc: If returning only dominant connected component.
+    :param epsilon: Tells how precise number of edges shpuld be.
+
+    :return:Generated euclidean graph.
     """
-    pass
+    radius = 1/n
+    while True:
+        g = igraph.Graph.GRG(n, radius)
+        deviation = (m-g.ecount())/m
+        if abs(deviation) < epsilon:
+            break
+        else:
+            radius += (1 if deviation > 0 else -1) / n
+    return g.clusters().giant() if dcc else g
 
 
 def generate_random_graph(n, m, dcc=True):
@@ -33,25 +43,21 @@ def generate_random_graph(n, m, dcc=True):
 def connected(g):
     """Checks if graph is connected.
 
-    Arguments:
-        g: Graph which will be checked.
+    :param g: Graph which will be checked.
 
-    Returns:
-        True if graph is connected else False.
+    :return: True if graph is connected else False.
     """
     if g.ecount() == 0 or g.vcount() == 0:
         return False
     return g.is_connected()
 
 
-def random_edge(g):
+def get_random_edge(g):
     """Gets random edge of a given graph.
 
-    Arguments:
-        g: Given graph.
+    :param g: Given graph.
 
-    Returns:
-        Random choosen edge of a graph.
+    :return: Random choosen edge of a graph.
     """
     return random.choice(g.es())
 
@@ -65,7 +71,7 @@ def attack(g):
     if g.ecount() == 0 or g.vcount() == 0:
         raise ValueError("Can't perform attack on graph with 0 edges or "
                          "vertices.")
-    edge = random_edge(g)
+    edge = get_random_edge(g)
     return g - edge
 
 
@@ -120,6 +126,15 @@ def show_svg(svg_path):
         print("Could not render SVG graphs outside Jupyter notebook.")
 
 
+def preview_graph(g, name):
+    """Preview graph in Jupyter notebook.
+
+    :param g: Graph to be previewed.
+    :param name: Svg filename to be used.
+    """
+    show_svg(dot2svg(graph2dot(g, name)))
+
+
 def success_new_cluster(old_g, new_g):
     return len(new_g.clusters()) > len(old_g.clusters())
 
@@ -128,20 +143,39 @@ def success_connected(old_g, new_g):
     return not connected(new_g)
 
 
-def process(*args, dcc=True, show=False, strategy='connected'):
+def process(n, m, k, graph_type='random', dcc=True, show=False,
+            strategy='connected', **kwargs):
+    """Process the experiment.
+
+    :param n: Number of graph vertices.
+    :param m: Number of graph edges.
+    :param k: Number of tries.
+    :param graph_type: Type of graph, might be 'euclidean' or 'random', defaults
+        to 'random'.
+    :param dcc: Flag telling if dominant connected component only should be used.
+    :param show: Flag telling if generated graphs should be showed (only for
+        Jupyter notebook).
+    :param strategy: Success strategy to be used, defaults to 'connected'.
+
+    :return: None
+    """
     success_strategies = {'connected': success_connected,
                           'new_cluster': success_new_cluster}
-    tries = args[2]
+    graph_generators = {'euclidean': generate_euclidean_graph,
+                        'random': generate_random_graph}
+    tries = k
     successes = 0
     for k in range(tries):
-        g = generate_random_graph(args[0], args[1], dcc)
+        g = graph_generators[graph_type](n, m, dcc, **kwargs)
         if show:
-            show_svg(dot2svg(graph2dot(g, "original")))
+            preview_graph(g, "original")
         attacked_g = attack(g)
         if show:
-            show_svg(dot2svg(graph2dot(attacked_g, f"attack{k}")))
+            preview_graph(attacked_g, f"attack")
         if success_strategies[strategy](g, attacked_g):
             successes += 1
+        if k % int(tries/10) == 0:
+            print(f"{k} attacks done.")
     print(f"Successes: {successes}. Break probability {successes/tries}.")
 
 
