@@ -62,7 +62,7 @@ def get_random_edge(g):
     return random.choice(g.es())
 
 
-def attack(g):
+def attack_random(g):
     """Perform attack on given graph by removing one of the edges.
 
     :param g: Graph which will be attacked.
@@ -157,7 +157,7 @@ def process(n, m, k, graph_type='random', dcc=True, show=False,
         Jupyter notebook).
     :param strategy: Success strategy to be used, defaults to 'connected'.
 
-    :return: None
+    :return: Number of successful attacks.
     """
     success_strategies = {'connected': success_connected,
                           'new_cluster': success_new_cluster}
@@ -169,7 +169,7 @@ def process(n, m, k, graph_type='random', dcc=True, show=False,
         g = graph_generators[graph_type](n, m, dcc, **kwargs)
         if show:
             preview_graph(g, "original")
-        attacked_g = attack(g)
+        attacked_g = attack_random(g)
         if show:
             preview_graph(attacked_g, f"attack")
         if success_strategies[strategy](g, attacked_g):
@@ -177,7 +177,31 @@ def process(n, m, k, graph_type='random', dcc=True, show=False,
         if k % int(tries/10) == 0:
             print(f"{k} attacks done.")
     print(f"Successes: {successes}. Break probability {successes/tries}.")
+    return successes
+
+
+def analyse_attack(g, strategy='new_cluster'):
+    """Performs analysis of all possible attacks on given graph.
+
+    For each edge checks if removing it results in attack success.
+
+    :param g: Analysed graph.
+    :param strategy: :param strategy: Success strategy to be used, defaults to
+        'new_cluster'.
+    :return: Number of successes.
+    """
+    def strategy_connected(*, new_g, **kwargs):
+        return not connected(new_g)
+
+    def strategy_new_cluster(*, old_count, new_g, **kwargs):
+        return old_count < len(new_g.clusters())
+
+    success_strategies = {'connected': strategy_connected,
+                          'new_cluster': strategy_new_cluster}
+    selected_strategy = success_strategies[strategy]
+    old_count = len(g.clusters())
+    return sum(selected_strategy(old_count=old_count, new_g=g-e) for e in g.es())
 
 
 if __name__ == '__main__':
-    process()
+    pass
