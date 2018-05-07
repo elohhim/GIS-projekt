@@ -1,6 +1,6 @@
 # SK6. Atak na sieć (II)
 
-## Raport wstępny do projektu w ramach kursu "Grafy i Sieci" (GIS)
+## Raport nr 2 do projektu w ramach kursu "Grafy i Sieci" (GIS)
 
 ### Patryk Kocielnik, Jan Kumor, 5.04.2018r.
 
@@ -66,12 +66,12 @@ Pierwszym etapem będzie przyjęcie zadanej liczby wierzchołków oraz zadanej g
 
 Algorytm ten przyjmuje dwa argumenty: liczbę wierzchołków $n$ oraz współczynnik prawdopodobieństwa wystąpienia krawędzi $n$.
 
-Grafy losowe ER (model Erdős–Rényi) zostaną wygenerowane z użyciem funkcji `Erdos_Renyi` klasy `Grah` pakietu _igraph_. Metoda ta przyjmuje jako parametry:
+Grafy losowe ER (model Erdős–Rényi) zostaną wygenerowane z użyciem funkcji `Erdos_Renyi` klasy `Graph` pakietu _igraph_. Metoda ta przyjmuje jako parametry:
 
 - liczbę wierzchołków grafu $n$
 - prawdopodobieństwo wystąpienia danej krawędzi $p$ lub zadaną liczbę krawędzi $m$.
 
-Zgodnie z dokumentacją pakietu _igraph_ algorytm wykorzystywany w metodzie `Erdos_Renyi` ma złożoność obliczeniową równą $O(|V|+|E|)$
+Zgodnie z dokumentacją pakietu _igraph_ algorytm wykorzystywany w metodzie `Erdos_Renyi` ma złożoność obliczeniową równą $O(|V|+|E|)$ [\[1\]](http://igraph.org/c/doc/).
 
 ~~Grafy euklidesowe generowane będą poprzez weryfikację, czy dany losowo wygenerowany graf posiada własności grafu euklidesowego. Wygenerowane grafy nie spełniające tego warunku będą odrzucane.~~
 
@@ -80,7 +80,7 @@ Grafy euklidesowe zostaną wygenerowane z wykorzystaniem funkcji `GRG` klasy `Gr
 1. Rozmieść $n$ wierzchołków w kwadracie jednostkowym,
 2. Połącz krawędziami te wierzchołki, które znajdują się od siebie w odległości mniejszej niż zadany promień $r$.
  
-Zgodnie z dokumentacją pakietu _igraph_ algorytm wykorzystywany w metodzie `GRG` ma złożoność obliczeniową nie większą niż $O(|V|^2+|E|)$. 
+Zgodnie z dokumentacją pakietu _igraph_ algorytm wykorzystywany w metodzie `GRG` ma złożoność obliczeniową nie większą niż $O(|V|^2+|E|)$ [\[1\]](http://igraph.org/c/doc/). 
 
 W celu uzyskania grafu o zadanej przybliżonej liczbie krawędzi  $m$ zostanie wykorzystane następujące podejście iteracyjne:
 
@@ -107,7 +107,7 @@ Liczba krawędzi jest w przybliżeniu równa zadanej liczbie krawędzi gdy: $\fr
 
 ## Weryfikacja spójności grafu
 
-Do weryfikacji spójności grafów zostanie wykorzystana metoda `is_connected` klasy `GraphBase` z pakietu _python-igraph_. Opiera się ona na algorytmie przeszukiwania grafu wgłąb (ang. _depth-first search_, DFS). Pseudokod algorytmu DFS [\[2\]](http://eduinf.waw.pl/inf/alg/001_search/0128a.php), ~~który zostanie wykorzystany do badania spójności grafów,~~ przedstawiony został poniżej :
+Do weryfikacji spójności grafów zostanie wykorzystana metoda `is_connected` klasy `GraphBase` z pakietu _python-igraph_. Opiera się ona na algorytmie przeszukiwania grafu wgłąb (ang. _depth-first search_, DFS). Pseudokod algorytmu DFS [\[3\]](http://eduinf.waw.pl/inf/alg/001_search/0128a.php), ~~który zostanie wykorzystany do badania spójności grafów,~~ przedstawiony został poniżej :
 
 1. Utwóż tablicę `visited` o `n` elementach,
 2. Tablicę `visited` wypełnij wartościami `false`,
@@ -193,3 +193,9 @@ Poprawność zaproponowanego rozwiązania zostanie sprawdzona na podstawie przep
 - 4 wierzchołki, 3 krawędzie - oczekiwane prawdopodobieństwo powodzenia ataku 0.8,
 - 4 wierzchołki, 4 krawędzie - oczekiwane prawdopodobieństwo powodzenia ataku 0.2,
 - 4 wierzchołki, 5 krawędzi - oczekiwane prawdopodobieństwo powodzenia ataku 0.0. 
+
+## Bibliografia
+
+- [\[1\] http://igraph.org/c/doc/](http://igraph.org/c/doc/)
+- [\[2\] http://igraph.org/python/doc/igraph-module.html](http://igraph.org/python/doc/igraph-module.html)
+- [\[3\] http://eduinf.waw.pl/inf/alg/001_search/0128a.php](http://eduinf.waw.pl/inf/alg/001_search/0128a.php)

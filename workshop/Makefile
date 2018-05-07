@@ -23,7 +23,7 @@ spellcheck:
 	aspell -c $(in) -d pl
 
 pub:
-	pandoc $(in) -o $(out)
+	pandoc $(in) -H quote-setup.tex -o $(out)
 
 show:
 	xdg-open $(out)
