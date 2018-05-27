@@ -1,55 +1,105 @@
 import os
 import random
+from collections import namedtuple
 
 import igraph
+import math
 
 
-def generate_euclidean_graph(n, m, dcc=True, *, epsilon=0.01):
-    """Generates euclidean graph of given number of vertices and edges.
+class GISError(ValueError):
+    pass
 
-    NOTE: Not very efficient and still not sure what euclidean graphs are.
 
-    :param n: Number of vertices.
-    :param m: Approximate number of edges.
-    :param dcc: If returning only dominant connected component.
-    :param epsilon: Tells how precise number of edges shpuld be.
+def generate_euclidean_graph(n, m):
+    """Generates euclidean graph of given number of vertices and number of
+    edges approximate to given one.
 
-    :return:Generated euclidean graph.
+    Uses formula for expected value of number of edges for euclidean graph:
+
+    Em = πξ^2 * n(n-1)/2
+
+    Where:
+        Em - expected value for number of edges
+        ξ - euclidean graph radius
+        n - number of vertices
+
+    :param n: Expected value for number of vertices.
+    :param m: Expected value for number of edges.
+
+    :return: Generated euclidean graph.
     """
-    radius = 1/n
-    while True:
-        g = igraph.Graph.GRG(n, radius)
-        deviation = (m-g.ecount())/m
-        if abs(deviation) < epsilon:
-            break
-        else:
-            radius += (1 if deviation > 0 else -1) / n
-    return g.clusters().giant() if dcc else g
+    radius = (2 * m / (math.pi * n * (n - 1))) ** 0.5
+    g = igraph.Graph.GRG(n, radius)
+    return g.clusters().giant()
 
 
-def generate_random_graph(n, m, dcc=True):
+def generate_random_graph(n, m):
     """Generates random (ER) graph of given number of vertices and edges.
 
     :param n: Number of vertices.
     :param m: Number of edges.
-    :param dcc: If returning only dominant connected component.
 
     :return: Generated random (ER) graph.
     """
+    ksi = 2*m / (n*(n-1))
+    if ksi < 1/n:
+        raise GISError(f"Can't generate connected random ER graph ξ={ksi} "
+                         f"is lower than 1/n={1/n}.")
     g = igraph.Graph.Erdos_Renyi(n, m=m, directed=False)
-    return g.clusters().giant() if dcc else g
+    return g.clusters().giant()
 
 
-def connected(g):
-    """Checks if graph is connected.
+def graph_factory(graph_type, n, m, epsilon):
+    """ Creates graph based on given attributes.
 
-    :param g: Graph which will be checked.
-
-    :return: True if graph is connected else False.
+    :param graph_type: Type of graphs in population: "random" or "euclidean".
+    :param n: Expected value for generated graph number of vertices.
+    :param m: Expected value for number of edges of graph.
+    :param epsilon: Tells how close to expected values the number of vertices
+        and edges should be.
+    :return: Generated graph.
     """
-    if g.ecount() == 0 or g.vcount() == 0:
-        return False
-    return g.is_connected()
+    max_tries = 100
+    factory_methods = {
+        "random": generate_random_graph,
+        "euclidean": generate_euclidean_graph
+    }
+    for _ in range(max_tries):
+        g = factory_methods[graph_type](n, m)
+        deviations = (n - g.vcount()) / n, (m - g.ecount()) / m
+        if max(map(abs, deviations)) < epsilon:
+            break
+    else:
+        raise GISError(
+            f"Failed after {max_tries} tries when generating"
+            f"graph:\n"
+            f"- type: {graph_type}\n"
+            f"- vertices: {n}\n"
+            f"- edges: {m}\n"
+            f"Interrupting processing, please reconsider if it is possible to "
+            f"create such connected graph within given epsilon boundaries " 
+            f"({epsilon}).")
+    return g
+
+
+def generate_graph_population(population_size, graph_type, n, m,
+                              epsilon=0.1):
+    """ Creates population of graphs with given attributes.
+
+    :param population_size: Size of population to be generated.
+    :param graph_type: Type of graphs in population: "random" or "euclidean".
+    :param n: Size of generated graphs in population.
+    :param m: Expected value for number of edges of graphs in
+        population.
+    :param epsilon: Tells how close to expected value the number of vertices
+        and edges should be.
+    :return: Generated population of graphs as a list.
+    """
+    try:
+        return [graph_factory(graph_type, n, m, epsilon)
+                for _ in range(population_size)]
+    except GISError as e:
+        raise GISError(f"Problem when generating graph population: {e}")
 
 
 def get_random_edge(g):
@@ -135,14 +185,6 @@ def preview_graph(g, name):
     show_svg(dot2svg(graph2dot(g, name)))
 
 
-def success_new_cluster(old_g, new_g):
-    return len(new_g.clusters()) > len(old_g.clusters())
-
-
-def success_connected(old_g, new_g):
-    return not connected(new_g)
-
-
 def process(n, m, k, graph_type='random', dcc=True, show=False,
             strategy='connected', **kwargs):
     """Process the experiment.
@@ -180,27 +222,57 @@ def process(n, m, k, graph_type='random', dcc=True, show=False,
     return successes
 
 
-def analyse_attack(g, strategy='new_cluster'):
-    """Performs analysis of all possible attacks on given graph.
+def perform_attack_old(g, multiplicity):
+    """Performs attack of given multiplicity on a graph.
 
-    For each edge checks if removing it results in attack success.
+    :param g: Attacked graph.
+    :param multiplicity: Quantity of edges that are removed during attack.
+    :return: Graphs after attack.
+    """
+    for _ in range(multiplicity):
+        g = attack_random(g)
+    return g
+
+
+def perform_attack(g, multiplicity):
+    """Performs attack of given multiplicity on a graph.
+
+    New impl (roughly 100 times faster) makes usage of igraph native methods.
+
+    :param g: Attacked graph.
+    :param multiplicity: Quantity of edges that are removed during attack.
+    :return: Graphs after attack.
+    """
+    result = g.copy()
+    result.delete_edges(random.sample(list(g.es), k=multiplicity))
+    return result
+
+
+AnalysisResult = namedtuple("AnalysisResult", "tries successes failures")
+
+
+def analyse_attack(g, tries, multiplicity, failure_threshold=None):
+    """Performs analysis of random attacks on given graph.
 
     :param g: Analysed graph.
-    :param strategy: :param strategy: Success strategy to be used, defaults to
-        'new_cluster'.
-    :return: Number of successes.
+    :param tries: Number of random attack tries to be performed.
+    :param multiplicity: Quantity of edges that are removed during attack.
+    :param failure_threshold: Tells after how many failed attack attempts
+        analysis should be forfeited. If None all tries are performed despite
+        failures. Defaults to None.
+    :return: AnalysisResult type tuple.
     """
-    def strategy_connected(*, new_g, **kwargs):
-        return not connected(new_g)
-
-    def strategy_new_cluster(*, old_count, new_g, **kwargs):
-        return old_count < len(new_g.clusters())
-
-    success_strategies = {'connected': strategy_connected,
-                          'new_cluster': strategy_new_cluster}
-    selected_strategy = success_strategies[strategy]
-    old_count = len(g.clusters())
-    return sum(selected_strategy(old_count=old_count, new_g=g-e) for e in g.es())
+    failures = 0
+    successes = 0
+    for i in range(tries):
+        attacked_g = perform_attack(g, multiplicity)
+        if attacked_g.is_connected():
+            failures += 1
+        else:
+            successes += 1
+        if failure_threshold is not None and failures == failure_threshold:
+            break
+    return AnalysisResult(i+1, successes, failures)
 
 
 if __name__ == '__main__':
