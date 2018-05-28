@@ -23,7 +23,7 @@ ZAŁĄCZNIK 2.
 
 ### I.
 
-Zmianie ulega brzmienie sekcji Generowanie grafów i otrzymuje następujące
+Zmianie ulega brzmienie sekcji "Generowanie grafów" raportu drugiego i otrzymuje następujące
 brzmienie:
 
 ## Generowanie grafów
@@ -49,6 +49,14 @@ Liczba wierzchołków | Sieć euklidesowa                     |  Sieć Erdosa-Re
  200                | ![](plots/N100_M200_euclidean.png)   | ![](plots/N100_M200_random.png)
  800                | ![](plots/N100_M800_euclidean.png)   | ![](plots/N100_M800_random.png)
  1600               | ![](plots/N100_M1600_euclidean.png)  | ![](plots/N100_M1600_random.png)
+ 
+#### Graf o 1000 wierzchołków
+
+Liczba wierzchołków | Sieć euklidesowa                     |  Sieć Erdosa-Renyi
+:------------------:|:------------------------------------:|:--------------------------------:
+ 200                | ![](plots/N100_M200_euclidean.png)   | ![](plots/N100_M200_random.png)
+ 800                | ![](plots/N100_M800_euclidean.png)   | ![](plots/N100_M800_random.png)
+ 1600               | ![](plots/N100_M1600_euclidean.png)  | ![](plots/N100_M1600_random.png)
 
 ## Wnioski
 
@@ -56,9 +64,13 @@ Na podstawie niniejszych badań wysnuto wnioski, które przedstawione są poniż
 
 Dane eksperymentalne wykazały, że łatwiej rozspójnić graf Euklidesowy niż Erdosa-Renyi (ER) losowymi atakami na krawędzie.
 
-Wynik ten jest zgodny z teorią ujętą w książce "Grafy i sieci" w podrozdziale 17.5. Autor książki wskazuje, że graf Euklidesowy składa się z wielu spójnych podgrafów połączonych ze sobą mostami, co czyni go wrażliwym na ataki na owe krawędzie.
+Wynik ten jest zgodny z teorią ujętą w książce "Grafy i sieci" \[1\] w podrozdziale 17.5. Autor książki wskazuje, że graf Euklidesowy składa się z wielu spójnych podgrafów połączonych ze sobą mostami, co czyni go wrażliwym na ataki na owe krawędzie.
 
-Dla grafów złożonych z dziesięciu i więcej wierzchołków wykres zależności podatności na rozspójnienie od liczby atakowanych krawędzi posiada kształt bliższy wykresowi funkcji tangens. Nie obserwujemy w nich zatem jeszcze własności sieci wielkoskalowych, które pojawiają się w grafach o 100 i więcej wierzchołkach.
+Jedną z pobocznych obeserwacji związanych z eksperymentem jest to, iż dla grafów złożonych z dziesięciu i więcej wierzchołków wykres zależności podatności na rozspójnienie od liczby atakowanych krawędzi posiada kształt wyraźnie różny od tego dla większych grafów, przypominający kształtem funkcję $f(x) = 1/x$. Nie obserwujemy w tych mniejszych zatem jeszcze własności sieci wielkoskalowych, które pojawiają się w grafach o 100 i więcej wierzchołkach.
+
+## Bibliografia
+
+- [\[1\] Grafy i sieci, Jacek Wojciechowski, Krzysztof Pieńkosz, PWN, Warszawa 2013](http://igraph.org/c/doc/)
 
 \pagebreak
 ## ZAŁĄCZNIK 1: Oryginalna treść sprawozdania nr 1
