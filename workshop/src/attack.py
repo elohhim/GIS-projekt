@@ -212,7 +212,7 @@ def perform_attack(g, multiplicity):
     return result
 
 
-AttackResult = namedtuple("AttackResult", "tries successes failures")
+AttackResult = namedtuple("AttackResult", "tries successes failures probability")
 
 
 def analyse_graph_attack(g, tries, multiplicity, failure_threshold=None):
@@ -236,7 +236,9 @@ def analyse_graph_attack(g, tries, multiplicity, failure_threshold=None):
             successes += 1
         if failure_threshold is not None and failures == failure_threshold:
             break
-    return AttackResult(i+1, successes, failures)
+    tries_performed = i+1
+    return AttackResult(tries_performed, successes, failures,
+                        successes/tries_performed)
 
 
 PopulationParameters = namedtuple("PopulationParameters",
@@ -265,21 +267,35 @@ def analyse_population_attack(population, attack_parameters):
     return PopulationAttackResult(attack_parameters, mean_result, results)
 
 
-def analyse_population(population):
-    #TODO: Attack parameters are hardcoded for now
-    for multiplicity in range(1, 50):
-        attack_parameters = AttackParameters(10000, multiplicity, None)
-        result = analyse_population_attack(population, attack_parameters)
-        print("###\n"
-              f"{attack_parameters}\n"
-              f"Mean: {result.mean}\n"
-              f"Results: {result.results}")
+POPULATION_SIZE = 100
 
+ATTACK_TRIES = 10000
+
+FAILURE_THRESHOLD = ATTACK_TRIES/10
 
 def process():
-    population_parameters = PopulationParameters(10, "random", 100, 200)
-    population = generate_graph_population(*population_parameters)
-    analyse_population(population)
+    test_data_sets = [
+        (PopulationParameters(POPULATION_SIZE, "random", 2, 1), 0),
+        (PopulationParameters(POPULATION_SIZE, "random", 3, 2), 0),
+        (PopulationParameters(POPULATION_SIZE, "random", 3, 3), 0),
+        (PopulationParameters(POPULATION_SIZE, "random", 4, 3), 0),
+        (PopulationParameters(POPULATION_SIZE, "random", 4, 4), 0),
+        (PopulationParameters(POPULATION_SIZE, "random", 4, 5), 0),
+    ]
+    data_sets = [
+        (PopulationParameters(POPULATION_SIZE, "random", 100, 200), 6),
+        (PopulationParameters(POPULATION_SIZE, "euclidean", 100, 200), 6)
+    ]
+    for pparam, max_exponent in test_data_sets:
+        print(f"### Analysing graph population defined by: {pparam}")
+        population = generate_graph_population(*pparam)
+        for exponent in range(max_exponent+1):
+            attack_parameters = AttackParameters(ATTACK_TRIES, 2**exponent,
+                                                 FAILURE_THRESHOLD)
+            result = analyse_population_attack(population, attack_parameters)
+            print(f"## Analysis results:\n"
+                  f"# Params: {result.attack_parameters}\n"
+                  f"# Mean: {result.mean}")
     return None
 
 
