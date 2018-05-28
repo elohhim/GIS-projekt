@@ -1,4 +1,3 @@
-import os
 import random
 import math
 from collections import namedtuple
@@ -131,66 +130,6 @@ def attack_random(g):
     return g - edge
 
 
-def safe_path_return(path):
-    """Returns path only if file exists in file system.
-
-    :param path: Path to be returned.
-    :raises FileNotFoundError: When file doesn't exist.
-    """
-    if os.path.exists(path):
-        return path
-    else:
-        raise FileNotFoundError(f"File {path} doesn't exist.")
-
-
-def graph2dot(g, filename, directory="graphs"):
-    """Saves given graph in dot format.
-
-    :param g: Graph to be saved.
-    :param filename: File name.
-    :param directory: Destination directory, default value 'graphs'.
-    :return: Path to the saved file.
-    """
-    dot_ext = ".dot"
-    dot_path = os.path.join(directory, filename+dot_ext)
-    g.write_dot(dot_path)
-    return safe_path_return(dot_path)
-
-
-def dot2svg(dot_path):
-    """Converts dot file into svg using dot command from graphviz package.
-
-    :param dot_path:
-    :return: Path to created svg file.
-    """
-    svg_ext = ".svg"
-    prefix, _ = os.path.splitext(dot_path)
-    svg_path = prefix + svg_ext
-    os.system(f"dot {dot_path} -Tsvg > {svg_path}")
-    return safe_path_return(svg_path)
-
-
-def show_svg(svg_path):
-    """Shows svg file if in Jupyter environment.
-
-    :param svg_path: Path to file which will be shown in notebook.
-    """
-    try:
-        from IPython.display import SVG, display
-        display(SVG(svg_path))
-    except ImportError:
-        print("Could not render SVG graphs outside Jupyter notebook.")
-
-
-def preview_graph(g, name):
-    """Preview graph in Jupyter notebook.
-
-    :param g: Graph to be previewed.
-    :param name: Svg filename to be used.
-    """
-    show_svg(dot2svg(graph2dot(g, name)))
-
-
 def perform_attack_old(g, multiplicity):
     """Performs attack of given multiplicity on a graph.
 
@@ -234,7 +173,8 @@ def analyse_graph_attack(g, tries, multiplicity, failure_threshold=None):
     failures = 0
     successes = 0
     for i in range(tries):
-        attacked_g = perform_attack(g, multiplicity)
+        eff_multiplicity = min(multiplicity, g.ecount())
+        attacked_g = perform_attack(g, eff_multiplicity)
         if attacked_g.is_connected():
             failures += 1
         else:
@@ -251,7 +191,6 @@ PopulationParameters = namedtuple("PopulationParameters",
 
 PopulationParametersTest = namedtuple("PopulationParametersTest",
                                       "size graph_type n m epsilon")
-
 
 
 AttackParameters = namedtuple("AttackParameters",
@@ -276,6 +215,33 @@ def analyse_population_attack(population, attack_parameters):
     return PopulationAttackResult(attack_parameters, mean_result, results)
 
 
+def plot_results(pparams, results):
+    """Plots population analysis results into file.
+    """
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    x = [r.attack_parameters.multiplicity for r in results]
+    y = [r.mean.probability for r in results]
+    plt.plot(x, y, '--ro')
+    axes = plt.gca()
+    axes.set_xlim([0, pparams.m])
+    axes.set_ylim([0, 1.1])
+    plt.grid(True)
+    gtype = {
+        "random": "losowych ER",
+        "euclidean": "euklidesowych"
+    }
+    plt.title(f"Analiza ataków na populację {pparams.size} grafów "
+              f"{gtype[pparams.graph_type]} o:\n"
+              f" {pparams.n} wierzchołkach i {pparams.m} krawędziach")
+    plt.xlabel("Liczba atakowanych krawędzi")
+    plt.ylabel("Prawdopodobienstwo powodzenia ataku")
+    # for x, y in zip(x, y):
+    #     ax.annotate(f"({x}, {y:.2f})", xy=(x, y), textcoords='data', fontsize=3)
+    file_name = f"N{pparams.n}_M{pparams.m}_{pparams.graph_type}"
+    plt.savefig(f"plots/{file_name}.png", dpi=300)
+
+
 POPULATION_SIZE = 100
 
 ATTACK_TRIES = 1000
@@ -291,70 +257,70 @@ test_data_sets = [
         (PopulationParameters(POPULATION_SIZE, "random", 4, 5), 2),
     ]
 
-normal_data_sets = [
-    (PopulationParameters(POPULATION_SIZE, "random", 10, 20), 4),
-    (PopulationParameters(POPULATION_SIZE, "euclidean", 10, 20), 4),
-    (PopulationParameters(POPULATION_SIZE, "random", 10, 30), 4),
-    (PopulationParameters(POPULATION_SIZE, "euclidean", 10, 30), 4),
-    (PopulationParameters(POPULATION_SIZE, "random", 10, 40), 5),
-    (PopulationParameters(POPULATION_SIZE, "euclidean", 10, 40), 5)
+data_sets_10 = [
+    PopulationParameters(POPULATION_SIZE, "random", 10, 20),
+    PopulationParameters(POPULATION_SIZE, "euclidean", 10, 20),
+    PopulationParameters(POPULATION_SIZE, "random", 10, 30),
+    PopulationParameters(POPULATION_SIZE, "euclidean", 10, 30),
+    PopulationParameters(POPULATION_SIZE, "random", 10, 40),
+    PopulationParameters(POPULATION_SIZE, "euclidean", 10, 40),
 ]
 
+data_sets_100 = [
+    PopulationParameters(POPULATION_SIZE, "random", 100, 200),
+    PopulationParameters(POPULATION_SIZE, "euclidean", 100, 200),
+    PopulationParameters(POPULATION_SIZE, "random", 100, 800),
+    PopulationParameters(POPULATION_SIZE, "euclidean", 100, 800),
+    PopulationParameters(POPULATION_SIZE, "random", 100, 1600),
+    PopulationParameters(POPULATION_SIZE, "euclidean", 100, 1600),
+]
 
-def plot_results(pparams, results):
-    """Plots population analysis results into file.
-    """
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    x = [r.attack_parameters.multiplicity for r in results]
-    y = [r.mean.probability for r in results]
-    plt.plot(x, y, '--ro')
-    axes = plt.gca()
-    axes.set_ylim([0, 1.1])
-    plt.grid(True)
-    gtype = {
-        "random": "losowych ER",
-        "euclidean": "euklidesowych"
-    }
-    plt.title(f"Analiza ataków na populację {pparams.size} grafów "
-              f"{gtype[pparams.graph_type]} o:\n"
-              f" {pparams.n} wierzchołkach i {pparams.m} krawędziach")
-    plt.xlabel("Liczba atakowanych krawędzi")
-    plt.ylabel("Prawdopodobienstwo powodzenia ataku")
-    for x, y in zip(x, y):
-        ax.annotate(f"({x}, {y:.2f})", xy=(x, y), textcoords='data')
-    file_name = f"N{pparams.n}_M{pparams.m}_{pparams.graph_type}"
-    plt.savefig(f"plots/{file_name}.png", dpi=300)
+data_sets_1000 = [
+    PopulationParameters(POPULATION_SIZE, "random", 1000, 4000),
+    PopulationParameters(POPULATION_SIZE, "euclidean", 1000, 4000),
+    PopulationParameters(POPULATION_SIZE, "random", 1000, 8000),
+    PopulationParameters(POPULATION_SIZE, "euclidean", 1000, 8000),
+    PopulationParameters(POPULATION_SIZE, "random", 1000, 16000),
+    PopulationParameters(POPULATION_SIZE, "euclidean", 1000, 16000),
+]
+
+all_data_sets = data_sets_10 + data_sets_100 + data_sets_1000
 
 
-def process(data_sets=normal_data_sets, is_test=False):
+def process(data_sets=all_data_sets, is_test=False, truncate=False):
     """ Performs experiment by performing series of attack analysis over
     graph populations defined in data sets.
 
     :param data_sets: List of experiment run definitions.
     :param is_test: Defaults False.
+    :param truncate: If analysis should stop when probability reaches 0.
     :return:
     """
-    for pparam, max_exponent in data_sets:
+    for pparam in data_sets:
         print(f"### Analysing graph population defined by: {pparam}")
         if is_test:
             pparam = PopulationParametersTest(*pparam, None)
         population = generate_graph_population(*pparam)
         results = []
-        for exponent in range(max_exponent+1):
-            attack_parameters = AttackParameters(ATTACK_TRIES, 2**exponent,
+        for i in range(20):
+            attack_parameters = AttackParameters(ATTACK_TRIES,
+                                                 int(1+i*(pparam.m/20)),
                                                  FAILURE_THRESHOLD)
             result = analyse_population_attack(population, attack_parameters)
             results.append(result)
             print(f"## Analysis results:\n"
                   f"# Params: {result.attack_parameters}\n"
                   f"# Mean: {result.mean}")
+            if truncate and math.isclose(result.mean.probability, 1.0,
+                                         abs_tol=0.01):
+                break
         plot_results(pparam, results)
     return None
 
 
 def test():
     process(test_data_sets, True)
+
 
 if __name__ == '__main__':
     process()

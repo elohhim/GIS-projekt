@@ -18,62 +18,212 @@ sieci).
 
 ## Errata do sprawozdania nr 1
 
-Oryginalny tekst sprawozdania nr 1 i 2 zawierają odpowiednio ZAŁĄCZNIK 1 oraz
-ZAŁĄCZNIK 2.
+Oryginalny tekst sprawozdania nr 1 i 2 zawierają odpowiednio ZAŁĄCZNIK 2 oraz
+ZAŁĄCZNIK 1.
 
 ### I.
 
-Zmianie ulega brzmienie sekcji "Generowanie grafów" raportu drugiego i otrzymuje następujące
+Zmianie ulega brzmienie sekcji "Interfejs aplikacji" otrzymując następujące
+brzmienie:
+
+## Interfejs aplikacji
+
+Implementacja aplikacji ma postać modułu języka Python _attakc.py_. Głównym
+punktem wejściowym wspomnianego modułu jest metoda _process(data_sets)_
+przyjmująca jako argument listę scenariuszy eksperymentalnych. Metoda _process_,
+przeprowadza analizę ataków losowych na populację losowych grafów i agreguje
+wyniki w postaci zwięzłego raportu oraz wykresu.
+
+Domyślnie argument metody _process_ przyjmuje jako wartość listę zawierającą
+predefiniowane scenariusze zgodne ze scenariuszami opisanymi w niniejszym
+sprawozdaniu. Z wykorzystaniem obiektów udostępnianych przez moduł _attack_
+możliwe jest jednak zdefiniowanie innego zestawu scenariuszy.
+
+### II.
+
+Zmianie ulega brzmienie sekcji "Przebieg eksperymentu" otrzymując następujące
+brzmienie:
+
+## Przebieg eksperymentu
+
+Eksperyment składa się z przeprowadzenia analizy scenariuszy eksperymentalnych.
+Każdy scenariusz zawiera definicję następujących parametrów:
+ 
+ - Rozmiar populacji grafów: $k=100$,
+ - Typ grafu: 
+   - euklidesowy,
+   - losowy ER,
+ - Liczba wierzchołków grafu $n \in (10, 100, 1000)$,
+ - Liczba krawędzi grafu $m$: 
+   - $m \in (20, 30, 40)$ dla $n=10$,
+   - $m \in (200, 800, 1600)$ dla $n=100$,
+   - $m \in (4000, 8000, 16000)$ dla $n=1000$
+
+Analiza każdego ze scenariuszy obejmuje kolejne analizy ataków o zwiększającej
+się krotności $c$ (liczba atakowanych na raz krawędzi). Krotności ataków przyjmują
+kolejno 20 wartości równo rozłożonych pomiędzy 1 a liczbą kawędzi grawu.
+
+Analiza jest przeprowadzana zgodnie z następującym algorytmem:
+ 
+1. Wygenerowanie populacji $k$ grafów losowych o zadanych w danym scenariuszu
+parametrach,
+2. Dla kolejnych wartości krotności ataku wykonanie:
+   1. Dla każdego z $k$ grafów z populacji wykonanie 10000 razy:
+      1. Wylosowanie z grafu $c$ krawędzi,
+      2. Usunięcie z grafu wylosowanych krawędzi,
+      3. Sprawdzenie spójności grafu po przeprowadzeniu ataku,
+      4. Jeśli graf nie jest spójny atak zakończył się powodzeniem,
+      5. Obliczenie prawdopodobieństwa powodzenia ataku na losowo wybrane $c$
+      krawędzie badanego grafu, zgodnie ze wzorem: $p_i = \frac{n_{sukces}}{10000}$
+   3. Zgodnie ze wzorem: $p_{sr} = \frac{\sum_{i=0}^{k} p_i}{k}$, obliczenie
+   średniego prawdopodobieństwo powodzenia ataku dla populacji,
+4. Agregacja wyników i narysowanie wykresu zależności prawdopodobieństwa 
+(uśrednionego dla badanej populacji) powodzenia ataku na graf od krotności tego
+ataku,
+3. Przyjęcie nowego scenariusza i powrót do punktu 1.
+
+Dodatkowo w celu zmniejszenia czasu obliczeń wprowadzono warunek stopu. Analiza
+danej populacji jest przerywana w chwili gdy średnie prawdopodobieństwo ataku
+dla danej krotności osąga wartość $1.0$ ( z dokładności $\varepsilon=0.01$). 
+
+### III.
+
+Zmianie ulega brzmienie sekcji "Generowanie grafów" otrzymując następujące
 brzmienie:
 
 ## Generowanie grafów
 
-### Wyniki eksperymentu
+### Grafy losowe Erdősa–Rényi
+Grafy losowe ER (model Erdős–Rényi) zostaną wygenerowane z użyciem funkcji 
+`Erdos_Renyi` klasy `Graph` pakietu _igraph_. Metoda ta przyjmuje jako parametry:
 
-Eksperyment przeprowadzony został zgodnie z ustaleniami opisanymi w poprzednich sprawozdaniach z uwzględnieniem poprawek zawartych w Erracie.
+ - liczbę wierzchołków grafu $n$,
+ - prawdopodobieństwo wystąpienia danej krawędzi $p$ lub zadaną liczbę krawędzi
+$m$.
 
-W każdym z przebiegów generowana była populacja grafów o zadanej wielkości i gęstości. Liczba usuniętych krawędzi, która spowodowała rozspójnienie grafu, została następnie uśredniona i umieszczona na odpowiednim wykresie.
+Zgodnie z dokumentacją pakietu _igraph_ algorytm wykorzystywany w metodzie
+`Erdos_Renyi` ma złożoność obliczeniową równą $O(|V|+|E|)$
+[\[1\]](http://igraph.org/c/doc/).
 
-#### Graf o 10 wierzchołkach
+Wartość oczekiwana liczby kawędzi grafu losowego można obliczyć wg wzoru
+(za [\[4\]]()):
 
-Liczba wierzchołków | Sieć euklidesowa                  |  Sieć Erdosa-Renyi
-:------------------:|:---------------------------------:|:--------------------------------:
- 20                 | ![](plots/N10_M20_euclidean.png)  | ![](plots/N10_M20_random.png)
- 30                 | ![](plots/N10_M30_euclidean.png)  | ![](plots/N10_M30_random.png)
- 40                 | ![](plots/N10_M40_euclidean.png)  | ![](plots/N10_M40_random.png)
+$$\bar{q} = \xi \frac{n(n-1)}{2}$$
 
-#### Graf o 100 wierzchołkach
+Gdzie:
 
-Liczba wierzchołków | Sieć euklidesowa                     |  Sieć Erdosa-Renyi
-:------------------:|:------------------------------------:|:--------------------------------:
- 200                | ![](plots/N100_M200_euclidean.png)   | ![](plots/N100_M200_random.png)
- 800                | ![](plots/N100_M800_euclidean.png)   | ![](plots/N100_M800_random.png)
- 1600               | ![](plots/N100_M1600_euclidean.png)  | ![](plots/N100_M1600_random.png)
+ - $\bar{q}$ - wartość oczekiwana liczby krawędzi,
+ - $\xi$ - prawdopodobieństwo wytąpienia krawędzi,
+ - $n$ - liczba wierzchołków grafu.
+
+Ponownie za [\[4\]]() możemy prytoczyć, że dla grafów losowych ER eksperymenty
+pokazują, że dla $\xi < \frac{1}{n}$ prawie wszystkie grafy są rozłączne.
+Ponieważ w eksperymencie rozważane są jedynie grafy spójne, generując graf 
+losowy ER sprawdzany jest powyższy warunek.
+
+### Grafy euklidesowe
+Grafy euklidesowe zostaną wygenerowane z wykorzystaniem funkcji `GRG` klasy 
+`Graph` z pakietu _igraph_. Metoda ta przyjmuje jako parametry:
+
+ - liczbę wierzchołków grafu $n$,
+ - promień $r$.
  
-#### Graf o 1000 wierzchołków
+ Algorytm generacji grafu euklidesowego o $n$ wierzchołkach:
 
-Liczba wierzchołków | Sieć euklidesowa                       |  Sieć Erdosa-Renyi
-:------------------:|:--------------------------------------:|:--------------------------------:
- 4000               | ![](plots/N1000_M4000_euclidean.png)   | ![](plots/N1000_M4000_random.png)
- 8000               | ![](plots/N1000_M8000_euclidean.png)   | ![](plots/N1000_M8000_random.png)
- 16000              | ![](plots/N1000_M16000_euclidean.png)  | ![](plots/N1000_M16000_random.png)
+1. Rozmieść $n$ wierzchołków w kwadracie jednostkowym,
+2. Połącz krawędziami te wierzchołki, które znajdują się od siebie w odległości
+mniejszej niż zadany promień $r$.
+ 
+Zgodnie z dokumentacją pakietu _igraph_ implementacja algorytmu zastosowana 
+w metodzie `GRG` ma złożoność obliczeniową nie większą niż $O(|V|^2+|E|)$
+[\[1\]](http://igraph.org/c/doc/). 
 
-## Wnioski
+Wartość oczekiwaną liczby krawędzi grafu euklidesowego o zadanym promieniu można
+wyznaczyć z zależności (za [\[4\]]()):
 
-Na podstawie niniejszych badań sformułowano wnioski, które przedstawione są poniżej.
+$$\bar{q} \approx \pi \xi^2 \frac{n(n-1)}{2}$$
 
-Dane eksperymentalne wykazały, że łatwiej rozspójnić graf Euklidesowy niż Erdosa-Renyi (ER) losowymi atakami na krawędzie.
+Gdzie:
+    - $\bar{q}$ - wartość oczekiwana liczby krawędzi,
+    - $\xi$ - promień grafu euklidesowego,
+    - $n$ - liczba wierzchołków grafu.
 
-Wynik ten jest zgodny z teorią ujętą w książce "Grafy i sieci" \[1\] w podrozdziale 17.5. Autor książki wskazuje, że graf Euklidesowy składa się z wielu spójnych podgrafów połączonych ze sobą mostami, co czyni go wrażliwym na ataki na owe krawędzie.
+Przekształcając powyższą zależność, znajdujemy wartość promienia dla jakiego
+należy generować graf euklidesowy w celu uzyskania odpowiedninej liczby krawędzi:
 
-Jedną z pobocznych obeserwacji związanych z eksperymentem jest to, iż dla grafów złożonych z dziesięciu i więcej wierzchołków wykres zależności podatności na rozspójnienie od liczby atakowanych krawędzi posiada kształt wyraźnie różny od tego dla większych grafów, przypominający kształtem funkcję $f(x) = 1/x$. Nie obserwujemy w tych mniejszych zatem jeszcze własności sieci wielkoskalowych, które pojawiają się w grafach o 100 i więcej wierzchołkach.
+$$\xi \approx \sqrt{\frac{2}{\pi} \frac{\bar{q}}{n (n-1)}}$$
+
+## Wyniki eksperymentu
+
+Eksperyment przeprowadzony został zgodnie z ustaleniami opisanymi w poprzednich
+sprawozdaniach z uwzględnieniem poprawek zawartych w Erracie.
+
+W każdym z przebiegów generowana była populacja grafów o zadanej wielkości
+i gęstości. Liczba usuniętych krawędzi, która spowodowała rozspójnienie grafu,
+została następnie uśredniona i umieszczona na odpowiednim wykresie.
+
+### Grafy o 10 wierzchołkach
+
+![](plots/N10_M20_euclidean.png)
+![](plots/N10_M20_random.png)
+![](plots/N10_M30_euclidean.png)
+![](plots/N10_M30_random.png)
+![](plots/N10_M40_euclidean.png)
+![](plots/N10_M40_random.png)
+
+### Grafy o 100 wierzchołkach
+
+![](plots/N100_M200_euclidean.png)
+![](plots/N100_M200_random.png)
+![](plots/N100_M800_euclidean.png)
+![](plots/N100_M800_random.png)
+![](plots/N100_M1600_euclidean.png)
+![](plots/N100_M1600_random.png)
+ 
+### Grafy o 1000 wierzchołkach
+
+![](plots/N1000_M4000_euclidean.png)
+![](plots/N1000_M4000_random.png)
+![](plots/N1000_M8000_euclidean.png)
+![](plots/N1000_M8000_random.png)
+![](plots/N1000_M16000_euclidean.png)
+![](plots/N1000_M16000_random.png)
+
+## Wnioski i obserwacje
+
+Na podstawie przeprowadzonych badań zostały sformułowane wnioski przedstawione
+poniżej.
+
+Analiza wyników i porównanie wygenerowanych wykresów (przesunięcie wykresów w
+lewo dla grafów euklidesowych) pozwala na stwierdzenie, że grafy euklidesowe
+są bardziej podatne na rozspójnienie przy ataku na losowe krawędzie, od grafów
+losowycho Erdosa-Renyi o porównywalnej liczbie wierzchołków i krawędzi.
+
+Obserwacja ta jest zgodna z teorią ujętą w książce "Grafy i sieci" [\[4\]]() w
+podrozdziale 17.6. Autor książki wskazuje, że grafy euklidesowowe składają się 
+z wielu silnie spójnych składowych połączonych ze sobą niewielką ilością mostów.
+Są one więc bardziej wrażliwe na ataki gdyż wystarczy zaatakować tylko kilka
+kluczowych krawędzi w celu rozspójnienia.
+
+Ponadto dla obu typów grafów można zaobserwować istnienie pewnej granicznej
+krotności ataku poniżej, której praktycznie nie jest możliwe zakończenie ataku
+sukcesem i rozspójnienie grafu. Wartość ta jst wyraźnie zależna od liczby
+krawędzi grafu i wzrasta wraz z nią. Natomiast kształty wykresów po przekroczeniu
+tej wartości wykazują lekkie różnice dla grafów losowych i euklidesowych.
+Dla grafów euklidesowych maksymalna wartość prawdopodobieństwa $1.0$ osiągana jest
+w sposób gwałtowny. Dla grafów euklidesowych zaś wykres zbiega do wartości $1.0$
+o wiele łagodniej. Charakterystyki te nie zależą od ilości wierzchołków oraz
+krawędzi badanych grafów.  
 
 ## Bibliografia
 
-- [\[1\] Grafy i sieci, Jacek Wojciechowski, Krzysztof Pieńkosz, PWN, Warszawa 2013](http://igraph.org/c/doc/)
+- [\[1\] http://igraph.org/c/doc/](http://igraph.org/c/doc/)
+- [\[2\] http://igraph.org/python/doc/igraph-module.html](http://igraph.org/python/doc/igraph-module.html)
+- [\[3\] http://eduinf.waw.pl/inf/alg/001_search/0128a.php](http://eduinf.waw.pl/inf/alg/001_search/0128a.php)
+- [\[4\] Grafy i sieci, Jacek Wojciechowski, Krzysztof Pieńkosz, PWN, Warszawa 2013]()
 
 \pagebreak
-## ZAŁĄCZNIK 1: Oryginalna treść sprawozdania nr 1
+## ZAŁĄCZNIK 1: Oryginalna treść sprawozdania nr 2
 
 # SK6. Atak na sieć (II)
 
@@ -524,7 +674,7 @@ Było:
 >$rozspójnień / ataków$
 
 \pagebreak
-## ZAŁĄCZNIK 1: Oryginalna treść sprawozdania nr 1
+## ZAŁĄCZNIK 2: Oryginalna treść sprawozdania nr 1
 
 ## Raport wstępny do projektu w ramach kursu "Grafy i Sieci" (GIS)
 
@@ -628,3 +778,334 @@ Testy zostaną przeprowadzone w następujący sposób:
 2. Z każdego z grafów zostanie usunięta losowo wybrana krawędź,
 3. Spójność grafu zostanie sprawdzona i zapisana,
 4. Obliczone zostanie prawdopodobieństwo rozspójnienia grafu $P$ jako iloraz: $rozspójnień / ataków$
+
+\pagebreak
+## ZAŁĄCZNIK 3: Kod źródłowy modułu attack.py
+
+```
+import random
+import math
+from collections import namedtuple
+
+import igraph
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+class GISError(ValueError):
+    pass
+
+
+def generate_euclidean_graph(n, m):
+    """Generates euclidean graph of given number of vertices and number of
+    edges approximate to given one.
+
+    Uses formula for expected value of number of edges for euclidean graph:
+
+    Em = pi*ksi^2 * n(n-1)/2
+
+    Where:
+        Em - expected value for number of edges
+        ksi - euclidean graph radius
+        n - number of vertices
+
+    :param n: Expected value for number of vertices.
+    :param m: Expected value for number of edges.
+
+    :return: Generated euclidean graph.
+    """
+    radius = (2 * m / (math.pi * n * (n - 1))) ** 0.5
+    g = igraph.Graph.GRG(n, radius, torus=True)
+    return g.clusters().giant()
+
+
+def generate_random_graph(n, m):
+    """Generates random (ER) graph of given number of vertices and edges.
+
+    :param n: Number of vertices.
+    :param m: Number of edges.
+
+    :return: Generated random (ER) graph.
+    """
+    ksi = 2*m / (n*(n-1))
+    if ksi < 1/n:
+        raise GISError(f"Can't generate connected random ER graph ksi={ksi} "
+                         f"is lower than 1/n={1/n}.")
+    g = igraph.Graph.Erdos_Renyi(n, m=m, directed=False)
+    return g.clusters().giant()
+
+
+def graph_factory(graph_type, n, m, epsilon):
+    """ Creates graph based on given attributes.
+
+    :param graph_type: Type of graphs in population: "random" or "euclidean".
+    :param n: Expected value for generated graph number of vertices.
+    :param m: Expected value for number of edges of graph.
+    :param epsilon: Tells how close to expected values the number of vertices
+        and edges should be.
+    :return: Generated graph.
+    """
+    max_tries = 100
+    factory_methods = {
+        "random": generate_random_graph,
+        "euclidean": generate_euclidean_graph
+    }
+    if epsilon is None:
+        return factory_methods[graph_type](n, m)
+    for _ in range(max_tries):
+        g = factory_methods[graph_type](n, m)
+        deviations = (n - g.vcount()) / n, (m - g.ecount()) / m
+        if max(map(abs, deviations)) < epsilon:
+            break
+    else:
+        raise GISError(
+            f"Failed after {max_tries} tries when generating "
+            f"graph:\n"
+            f"- type: {graph_type}\n"
+            f"- vertices: {n}\n"
+            f"- edges: {m}\n"
+            f"Interrupting processing, please reconsider if it is possible to "
+            f"create such connected graph within given epsilon boundaries " 
+            f"({epsilon}).")
+    return g
+
+
+def generate_graph_population(population_size, graph_type, n, m,
+                              epsilon=0.1):
+    """ Creates population of graphs with given attributes.
+
+    :param population_size: Size of population to be generated.
+    :param graph_type: Type of graphs in population: "random" or "euclidean".
+    :param n: Size of generated graphs in population.
+    :param m: Expected value for number of edges of graphs in
+        population.
+    :param epsilon: Tells how close to expected value the number of vertices
+        and edges should be.
+    :return: Generated population of graphs as a list.
+    """
+    try:
+        return [graph_factory(graph_type, n, m, epsilon)
+                for _ in range(population_size)]
+    except GISError as e:
+        #raise GISError(f"Problem when generating graph population: {e}")
+        print(f"Problem when generating graph population: {e}")
+        return []
+
+
+def get_random_edge(g):
+    """Gets random edge of a given graph.
+
+    :param g: Given graph.
+
+    :return: Random choosen edge of a graph.
+    """
+    return random.choice(g.es())
+
+
+def attack_random(g):
+    """Perform attack on given graph by removing one of the edges.
+
+    :param g: Graph which will be attacked.
+    :return: Graph after performing an attack.
+    """
+    if g.ecount() == 0 or g.vcount() == 0:
+        raise ValueError("Can't perform attack on graph with 0 edges or "
+                         "vertices.")
+    edge = get_random_edge(g)
+    return g - edge
+
+
+def perform_attack_old(g, multiplicity):
+    """Performs attack of given multiplicity on a graph.
+
+    :param g: Attacked graph.
+    :param multiplicity: Quantity of edges that are removed during attack.
+    :return: Graphs after attack.
+    """
+    for _ in range(multiplicity):
+        g = attack_random(g)
+    return g
+
+
+def perform_attack(g, multiplicity):
+    """Performs attack of given multiplicity on a graph.
+
+    New impl (roughly 100 times faster) makes usage of igraph native methods.
+
+    :param g: Attacked graph.
+    :param multiplicity: Quantity of edges that are removed during attack.
+    :return: Graphs after attack.
+    """
+    result = g.copy()
+    result.delete_edges(random.sample(list(g.es), k=multiplicity))
+    return result
+
+
+AttackResult = namedtuple("AttackResult", "tries successes failures probability")
+
+
+def analyse_graph_attack(g, tries, multiplicity, failure_threshold=None):
+    """Performs analysis of random attacks on given graph.
+
+    :param g: Analysed graph.
+    :param tries: Number of random attack tries to be performed.
+    :param multiplicity: Quantity of edges that are removed during attack.
+    :param failure_threshold: Tells after how many failed attack attempts
+        analysis should be forfeited. If None all tries are performed despite
+        failures. Defaults to None.
+    :return: AnalysisResult type tuple.
+    """
+    failures = 0
+    successes = 0
+    for i in range(tries):
+        eff_multiplicity = min(multiplicity, g.ecount())
+        attacked_g = perform_attack(g, eff_multiplicity)
+        if attacked_g.is_connected():
+            failures += 1
+        else:
+            successes += 1
+        if failure_threshold is not None and failures == failure_threshold:
+            break
+    tries_performed = i+1
+    return AttackResult(tries_performed, successes, failures,
+                        successes/tries_performed)
+
+
+PopulationParameters = namedtuple("PopulationParameters",
+                                  "size graph_type n m")
+
+PopulationParametersTest = namedtuple("PopulationParametersTest",
+                                      "size graph_type n m epsilon")
+
+
+AttackParameters = namedtuple("AttackParameters",
+                              "tries multiplicity failure_threshold")
+
+
+PopulationAttackResult = namedtuple("PopulationAttackResult",
+                                    "attack_parameters mean results")
+
+
+def analyse_population_attack(population, attack_parameters):
+    """Performs series of attack analysis on each graph from given
+    population.
+
+    :param population:
+    :param attack_parameters:
+    :return:
+    """
+    results = [analyse_graph_attack(g, *attack_parameters)
+               for g in population]
+    mean_result = AttackResult(*tuple(np.mean(results, axis=0)))
+    return PopulationAttackResult(attack_parameters, mean_result, results)
+
+
+def plot_results(pparams, results):
+    """Plots population analysis results into file.
+    """
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    x = [r.attack_parameters.multiplicity for r in results]
+    y = [r.mean.probability for r in results]
+    plt.plot(x, y, '--ro')
+    axes = plt.gca()
+    axes.set_ylim([0, 1.1])
+    plt.grid(True)
+    gtype = {
+        "random": "losowych ER",
+        "euclidean": "euklidesowych"
+    }
+    plt.title(f"Analiza ataków na populację {pparams.size} grafów "
+              f"{gtype[pparams.graph_type]} o:\n"
+              f" {pparams.n} wierzchołkach i {pparams.m} krawędziach")
+    plt.xlabel("Liczba atakowanych krawędzi")
+    plt.ylabel("Prawdopodobienstwo powodzenia ataku")
+    # for x, y in zip(x, y):
+    #     ax.annotate(f"({x}, {y:.2f})", xy=(x, y), textcoords='data', fontsize=3)
+    file_name = f"N{pparams.n}_M{pparams.m}_{pparams.graph_type}"
+    plt.savefig(f"plots/{file_name}.png", dpi=300)
+
+
+POPULATION_SIZE = 100
+
+ATTACK_TRIES = 1000
+
+FAILURE_THRESHOLD = ATTACK_TRIES/10
+
+test_data_sets = [
+        (PopulationParameters(POPULATION_SIZE, "random", 2, 1), 0),
+        (PopulationParameters(POPULATION_SIZE, "random", 3, 2), 0),
+        (PopulationParameters(POPULATION_SIZE, "random", 3, 3), 0),
+        (PopulationParameters(POPULATION_SIZE, "random", 4, 3), 0),
+        (PopulationParameters(POPULATION_SIZE, "random", 4, 4), 1),
+        (PopulationParameters(POPULATION_SIZE, "random", 4, 5), 2),
+    ]
+
+data_sets_10 = [
+    (PopulationParameters(POPULATION_SIZE, "random", 10, 20), 4),
+    (PopulationParameters(POPULATION_SIZE, "euclidean", 10, 20), 4),
+    (PopulationParameters(POPULATION_SIZE, "random", 10, 30), 4),
+    (PopulationParameters(POPULATION_SIZE, "euclidean", 10, 30), 4),
+    (PopulationParameters(POPULATION_SIZE, "random", 10, 40), 5),
+    (PopulationParameters(POPULATION_SIZE, "euclidean", 10, 40), 5)
+]
+
+data_sets_100 = [
+    (PopulationParameters(POPULATION_SIZE, "random", 100, 200), 7),
+    (PopulationParameters(POPULATION_SIZE, "euclidean", 100, 200), 7),
+    (PopulationParameters(POPULATION_SIZE, "random", 100, 800), 9),
+    (PopulationParameters(POPULATION_SIZE, "euclidean", 100, 800), 9),
+    (PopulationParameters(POPULATION_SIZE, "random", 100, 1600), 10),
+    (PopulationParameters(POPULATION_SIZE, "euclidean", 100, 1600), 10),
+]
+
+data_sets_1000 = [
+    (PopulationParameters(POPULATION_SIZE, "random", 1000, 4000), 11),
+    (PopulationParameters(POPULATION_SIZE, "euclidean", 1000, 4000), 11),
+    (PopulationParameters(POPULATION_SIZE, "random", 1000, 8000), 12),
+    (PopulationParameters(POPULATION_SIZE, "euclidean", 1000, 8000), 12),
+    (PopulationParameters(POPULATION_SIZE, "random", 1000, 16000), 13),
+    (PopulationParameters(POPULATION_SIZE, "euclidean", 1000, 16000), 13),
+]
+
+all_data_sets = data_sets_10 + data_sets_100 + data_sets_1000
+
+
+def process(data_sets=all_data_sets, is_test=False):
+    """ Performs experiment by performing series of attack analysis over
+    graph populations defined in data sets.
+
+    :param data_sets: List of experiment run definitions.
+    :param is_test: Defaults False.
+    :return:
+    """
+    for pparam, max_exponent in data_sets:
+        print(f"### Analysing graph population defined by: {pparam}")
+        if is_test:
+            pparam = PopulationParametersTest(*pparam, None)
+        population = generate_graph_population(*pparam)
+        results = []
+        #for exponent in range(max_exponent+1):
+        for i in range(20):
+            attack_parameters = AttackParameters(ATTACK_TRIES,
+                                                 int(1+i*(pparam.m/20)),
+                                                 FAILURE_THRESHOLD)
+            result = analyse_population_attack(population, attack_parameters)
+            results.append(result)
+            print(f"## Analysis results:\n"
+                  f"# Params: {result.attack_parameters}\n"
+                  f"# Mean: {result.mean}")
+            if math.isclose(result.mean.probability, 1.0,  abs_tol=0.01):
+                break
+        plot_results(pparam, results)
+    return None
+
+
+def test():
+    process(test_data_sets, True)
+
+
+if __name__ == '__main__':
+    process()
+   
+```

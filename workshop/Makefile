@@ -9,12 +9,11 @@
 # - aspell
 
 in=in/raport.md
-out=raport.pdf
-#out="gis-p.kocielnik.pdf"
+out="GIS_Kocielnik_Kumor_Sprawozdanie_3.pdf"
 
 all: $(in)
 	pandoc $(in) -o $(out)
-	xdg-open $(out)
+#    xdg-open $(out)
 
 ed:
 	vim $(in) -c "set syntax=markdown" -c ":Voom markdown"
