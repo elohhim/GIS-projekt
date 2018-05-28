@@ -65,6 +65,8 @@ def graph_factory(graph_type, n, m, epsilon):
         "random": generate_random_graph,
         "euclidean": generate_euclidean_graph
     }
+    if epsilon is None:
+        return factory_methods[graph_type](n, m)
     for _ in range(max_tries):
         g = factory_methods[graph_type](n, m)
         deviations = (n - g.vcount()) / n, (m - g.ecount()) / m
@@ -72,7 +74,7 @@ def graph_factory(graph_type, n, m, epsilon):
             break
     else:
         raise GISError(
-            f"Failed after {max_tries} tries when generating"
+            f"Failed after {max_tries} tries when generating "
             f"graph:\n"
             f"- type: {graph_type}\n"
             f"- vertices: {n}\n"
@@ -275,21 +277,26 @@ ATTACK_TRIES = 10000
 
 FAILURE_THRESHOLD = ATTACK_TRIES/10
 
-def process():
-    test_data_sets = [
+test_data_sets = [
         (PopulationParameters(POPULATION_SIZE, "random", 2, 1), 0),
         (PopulationParameters(POPULATION_SIZE, "random", 3, 2), 0),
         (PopulationParameters(POPULATION_SIZE, "random", 3, 3), 0),
         (PopulationParameters(POPULATION_SIZE, "random", 4, 3), 0),
-        (PopulationParameters(POPULATION_SIZE, "random", 4, 4), 0),
-        (PopulationParameters(POPULATION_SIZE, "random", 4, 5), 0),
+        (PopulationParameters(POPULATION_SIZE, "random", 4, 4), 1),
+        (PopulationParameters(POPULATION_SIZE, "random", 4, 5), 1),
     ]
-    data_sets = [
-        (PopulationParameters(POPULATION_SIZE, "random", 100, 200), 6),
-        (PopulationParameters(POPULATION_SIZE, "euclidean", 100, 200), 6)
-    ]
-    for pparam, max_exponent in test_data_sets:
+
+normal_data_sets = [
+    (PopulationParameters(POPULATION_SIZE, "random", 4000, 8000), 10),
+    (PopulationParameters(POPULATION_SIZE, "euclidean", 100, 200), 6)
+]
+
+
+def process(data_sets=normal_data_sets, is_test=False):
+    for pparam, max_exponent in data_sets:
         print(f"### Analysing graph population defined by: {pparam}")
+        if is_test:
+            pparam = *pparam, None
         population = generate_graph_population(*pparam)
         for exponent in range(max_exponent+1):
             attack_parameters = AttackParameters(ATTACK_TRIES, 2**exponent,
@@ -300,6 +307,9 @@ def process():
                   f"# Mean: {result.mean}")
     return None
 
+
+def test():
+    process(test_data_sets, True)
 
 if __name__ == '__main__':
     pass
