@@ -30,7 +30,7 @@ def generate_euclidean_graph(n, m):
     :return: Generated euclidean graph.
     """
     radius = (2 * m / (math.pi * n * (n - 1))) ** 0.5
-    g = igraph.Graph.GRG(n, radius)
+    g = igraph.Graph.GRG(n, radius, torus=True)
     return g.clusters().giant()
 
 
