@@ -52,11 +52,11 @@ Liczba wierzchołków | Sieć euklidesowa                     |  Sieć Erdosa-Re
  
 #### Graf o 1000 wierzchołków
 
-Liczba wierzchołków | Sieć euklidesowa                     |  Sieć Erdosa-Renyi
-:------------------:|:------------------------------------:|:--------------------------------:
- 200                | ![](plots/N100_M200_euclidean.png)   | ![](plots/N100_M200_random.png)
- 800                | ![](plots/N100_M800_euclidean.png)   | ![](plots/N100_M800_random.png)
- 1600               | ![](plots/N100_M1600_euclidean.png)  | ![](plots/N100_M1600_random.png)
+Liczba wierzchołków | Sieć euklidesowa                       |  Sieć Erdosa-Renyi
+:------------------:|:--------------------------------------:|:--------------------------------:
+ 4000               | ![](plots/N1000_M4000_euclidean.png)   | ![](plots/N1000_M4000_random.png)
+ 8000               | ![](plots/N1000_M8000_euclidean.png)   | ![](plots/N1000_M8000_random.png)
+ 16000              | ![](plots/N1000_M16000_euclidean.png)  | ![](plots/N1000_M16000_random.png)
 
 ## Wnioski
 
