@@ -1,9 +1,10 @@
 import os
 import random
+import math
 from collections import namedtuple
 
 import igraph
-import math
+import numpy as np
 
 
 class GISError(ValueError):
@@ -185,43 +186,6 @@ def preview_graph(g, name):
     show_svg(dot2svg(graph2dot(g, name)))
 
 
-def process(n, m, k, graph_type='random', dcc=True, show=False,
-            strategy='connected', **kwargs):
-    """Process the experiment.
-
-    :param n: Number of graph vertices.
-    :param m: Number of graph edges.
-    :param k: Number of tries.
-    :param graph_type: Type of graph, might be 'euclidean' or 'random', defaults
-        to 'random'.
-    :param dcc: Flag telling if dominant connected component only should be used.
-    :param show: Flag telling if generated graphs should be showed (only for
-        Jupyter notebook).
-    :param strategy: Success strategy to be used, defaults to 'connected'.
-
-    :return: Number of successful attacks.
-    """
-    success_strategies = {'connected': success_connected,
-                          'new_cluster': success_new_cluster}
-    graph_generators = {'euclidean': generate_euclidean_graph,
-                        'random': generate_random_graph}
-    tries = k
-    successes = 0
-    for k in range(tries):
-        g = graph_generators[graph_type](n, m, dcc, **kwargs)
-        if show:
-            preview_graph(g, "original")
-        attacked_g = attack_random(g)
-        if show:
-            preview_graph(attacked_g, f"attack")
-        if success_strategies[strategy](g, attacked_g):
-            successes += 1
-        if k % int(tries/10) == 0:
-            print(f"{k} attacks done.")
-    print(f"Successes: {successes}. Break probability {successes/tries}.")
-    return successes
-
-
 def perform_attack_old(g, multiplicity):
     """Performs attack of given multiplicity on a graph.
 
@@ -248,10 +212,10 @@ def perform_attack(g, multiplicity):
     return result
 
 
-AnalysisResult = namedtuple("AnalysisResult", "tries successes failures")
+AttackResult = namedtuple("AttackResult", "tries successes failures")
 
 
-def analyse_attack(g, tries, multiplicity, failure_threshold=None):
+def analyse_graph_attack(g, tries, multiplicity, failure_threshold=None):
     """Performs analysis of random attacks on given graph.
 
     :param g: Analysed graph.
@@ -272,7 +236,51 @@ def analyse_attack(g, tries, multiplicity, failure_threshold=None):
             successes += 1
         if failure_threshold is not None and failures == failure_threshold:
             break
-    return AnalysisResult(i+1, successes, failures)
+    return AttackResult(i+1, successes, failures)
+
+
+PopulationParameters = namedtuple("PopulationParameters",
+                                  "size graph_type n m")
+
+
+AttackParameters = namedtuple("AttackParameters",
+                              "tries multiplicity failure_threshold")
+
+
+PopulationAttackResult = namedtuple("PopulationAttackResult",
+                                    "attack_parameters mean results")
+
+
+def analyse_population_attack(population, attack_parameters):
+    """Performs series of attack analysis on each graph from given
+    population.
+
+    :param population:
+    :param attack_parameters:
+    :return:
+    """
+    results = [analyse_graph_attack(g, *attack_parameters)
+               for g in population]
+    mean_result = AttackResult(*tuple(np.mean(results, axis=0)))
+    return PopulationAttackResult(attack_parameters, mean_result, results)
+
+
+def analyse_population(population):
+    #TODO: Attack parameters are hardcoded for now
+    for multiplicity in range(1, 50):
+        attack_parameters = AttackParameters(10000, multiplicity, None)
+        result = analyse_population_attack(population, attack_parameters)
+        print("###\n"
+              f"{attack_parameters}\n"
+              f"Mean: {result.mean}\n"
+              f"Results: {result.results}")
+
+
+def process():
+    population_parameters = PopulationParameters(10, "random", 100, 200)
+    population = generate_graph_population(*population_parameters)
+    analyse_population(population)
+    return None
 
 
 if __name__ == '__main__':
