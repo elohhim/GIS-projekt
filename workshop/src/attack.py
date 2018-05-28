@@ -5,6 +5,7 @@ from collections import namedtuple
 
 import igraph
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 class GISError(ValueError):
@@ -248,6 +249,10 @@ def analyse_graph_attack(g, tries, multiplicity, failure_threshold=None):
 PopulationParameters = namedtuple("PopulationParameters",
                                   "size graph_type n m")
 
+PopulationParametersTest = namedtuple("PopulationParametersTest",
+                                      "size graph_type n m epsilon")
+
+
 
 AttackParameters = namedtuple("AttackParameters",
                               "tries multiplicity failure_threshold")
@@ -273,7 +278,7 @@ def analyse_population_attack(population, attack_parameters):
 
 POPULATION_SIZE = 100
 
-ATTACK_TRIES = 10000
+ATTACK_TRIES = 1000
 
 FAILURE_THRESHOLD = ATTACK_TRIES/10
 
@@ -283,28 +288,68 @@ test_data_sets = [
         (PopulationParameters(POPULATION_SIZE, "random", 3, 3), 0),
         (PopulationParameters(POPULATION_SIZE, "random", 4, 3), 0),
         (PopulationParameters(POPULATION_SIZE, "random", 4, 4), 1),
-        (PopulationParameters(POPULATION_SIZE, "random", 4, 5), 1),
+        (PopulationParameters(POPULATION_SIZE, "random", 4, 5), 2),
     ]
 
 normal_data_sets = [
-    (PopulationParameters(POPULATION_SIZE, "random", 4000, 8000), 10),
-    (PopulationParameters(POPULATION_SIZE, "euclidean", 100, 200), 6)
+    (PopulationParameters(POPULATION_SIZE, "random", 10, 20), 4),
+    (PopulationParameters(POPULATION_SIZE, "euclidean", 10, 20), 4),
+    (PopulationParameters(POPULATION_SIZE, "random", 10, 30), 4),
+    (PopulationParameters(POPULATION_SIZE, "euclidean", 10, 30), 4),
+    (PopulationParameters(POPULATION_SIZE, "random", 10, 40), 5),
+    (PopulationParameters(POPULATION_SIZE, "euclidean", 10, 40), 5)
 ]
 
 
+def plot_results(pparams, results):
+    """Plots population analysis results into file.
+    """
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    x = [r.attack_parameters.multiplicity for r in results]
+    y = [r.mean.probability for r in results]
+    plt.plot(x, y, '--ro')
+    axes = plt.gca()
+    axes.set_ylim([0, 1.1])
+    plt.grid(True)
+    gtype = {
+        "random": "losowych ER",
+        "euclidean": "euklidesowych"
+    }
+    plt.title(f"Analiza ataków na populację {pparams.size} grafów "
+              f"{gtype[pparams.graph_type]} o:\n"
+              f" {pparams.n} wierzchołkach i {pparams.m} krawędziach")
+    plt.xlabel("Liczba atakowanych krawędzi")
+    plt.ylabel("Prawdopodobienstwo powodzenia ataku")
+    for x, y in zip(x, y):
+        ax.annotate(f"({x}, {y:.2f})", xy=(x, y), textcoords='data')
+    file_name = f"N{pparams.n}_M{pparams.m}_{pparams.graph_type}"
+    plt.savefig(f"plots/{file_name}.png", dpi=300)
+
+
 def process(data_sets=normal_data_sets, is_test=False):
+    """ Performs experiment by performing series of attack analysis over
+    graph populations defined in data sets.
+
+    :param data_sets: List of experiment run definitions.
+    :param is_test: Defaults False.
+    :return:
+    """
     for pparam, max_exponent in data_sets:
         print(f"### Analysing graph population defined by: {pparam}")
         if is_test:
-            pparam = *pparam, None
+            pparam = PopulationParametersTest(*pparam, None)
         population = generate_graph_population(*pparam)
+        results = []
         for exponent in range(max_exponent+1):
             attack_parameters = AttackParameters(ATTACK_TRIES, 2**exponent,
                                                  FAILURE_THRESHOLD)
             result = analyse_population_attack(population, attack_parameters)
+            results.append(result)
             print(f"## Analysis results:\n"
                   f"# Params: {result.attack_parameters}\n"
                   f"# Mean: {result.mean}")
+        plot_results(pparam, results)
     return None
 
 
@@ -312,4 +357,4 @@ def test():
     process(test_data_sets, True)
 
 if __name__ == '__main__':
-    pass
+    process()
