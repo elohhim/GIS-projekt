@@ -100,7 +100,9 @@ def generate_graph_population(population_size, graph_type, n, m,
         return [graph_factory(graph_type, n, m, epsilon)
                 for _ in range(population_size)]
     except GISError as e:
-        raise GISError(f"Problem when generating graph population: {e}")
+        #raise GISError(f"Problem when generating graph population: {e}")
+        print(f"Problem when generating graph population: {e}")
+        return []
 
 
 def get_random_edge(g):
