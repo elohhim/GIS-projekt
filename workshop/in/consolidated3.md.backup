@@ -28,6 +28,28 @@ brzmienie:
 
 ## Generowanie grafów
 
+### Wyniki eksperymentu
+
+Eksperyment przeprowadzony został zgodnie z ustaleniami opisanymi w poprzednich sprawozdaniach z uwzględnieniem poprawek zawartych w Erracie.
+
+W każdym z przebiegów generowana była populacja grafów o zadanej wielkości i gęstości. Liczba usuniętych krawędzi, która spowodowała rozspójnienie grafu, została następnie uśredniona i umieszczona na odpowiednim wykresie.
+
+#### Graf o 10 wierzchołkach
+
+Liczba wierzchołków | Sieć euklidesowa                  |  Sieć Erdosa-Renyi
+:------------------:|:---------------------------------:|:--------------------------------:
+ 20                 | ![](plots/N10_M20_euclidean.png)  | ![](plots/N10_M20_random.png)
+ 30                 | ![](plots/N10_M30_euclidean.png)  | ![](plots/N10_M30_random.png)
+ 40                 | ![](plots/N10_M40_euclidean.png)  | ![](plots/N10_M40_random.png)
+
+#### Graf o 100 wierzchołkach
+
+Liczba wierzchołków | Sieć euklidesowa                     |  Sieć Erdosa-Renyi
+:------------------:|:------------------------------------:|:--------------------------------:
+ 200                | ![](plots/N100_M200_euclidean.png)   | ![](plots/N100_M200_random.png)
+ 800                | ![](plots/N100_M800_euclidean.png)   | ![](plots/N100_M800_random.png)
+ 1600               | ![](plots/N100_M1600_euclidean.png)  | ![](plots/N100_M1600_random.png)
+
 ## Wnioski
 
 Wnioski, które wysnuliśmy na podstawie naszych badań, są następujące.
@@ -36,7 +58,7 @@ Dane eksperymentalne wykazały, że łatwiej rozspójnić graf Euklidesowy niż 
 
 Wynik ten jest zgodny z teorią ujętą w książce "Grafy i sieci" w podrozdziale 17.5. Autor książki wskazuje, że graf Euklidesowy składa się z wielu spójnych podgrafów połączonych ze sobą mostami, co czyni go wrażliwym na ataki na owe krawędzie.
 
-
+Dla grafów złożonych z dziesięciu i więcej wierzchołków wykres zależności podatności na rozspójnienie od liczby atakowanych krawędzi posiada kształt bliższy wykresowi funkcji tangens. Nie obserwujemy w nich zatem jeszcze własności sieci wielkoskalowych, które pojawiają się w grafach o 100 i więcej wierzchołkach.
 
 \pagebreak
 ## ZAŁĄCZNIK 1: Oryginalna treść sprawozdania nr 1
