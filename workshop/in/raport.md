@@ -39,6 +39,29 @@ predefiniowane scenariusze zgodne ze scenariuszami opisanymi w niniejszym
 sprawozdaniu. Z wykorzystaniem obiektów udostępnianych przez moduł _attack_
 możliwe jest jednak zdefiniowanie innego zestawu scenariuszy.
 
+Na poniższym listingu przedstawiono fragment wyników działania metody _process_:
+
+```
+### Analysing graph population defined by: PopulationParameters(size=100,
+    graph_type='random', n=100, m=200)
+## Analysis results:
+# Params: AttackParameters(tries=10000, multiplicity=1, failure_threshold=1000.0)
+# Mean: AttackResult(tries=1036.64, successes=36.64, failures=1000.0,
+    probability=0.03518275677053277)
+## Analysis results:
+# Params: AttackParameters(tries=10000, multiplicity=11, failure_threshold=1000.0)
+# Mean: AttackResult(tries=1609.81, successes=609.81, failures=1000.0,
+    probability=0.3661081930519222)
+## Analysis results:
+# Params: AttackParameters(tries=10000, multiplicity=21, failure_threshold=1000.0)
+# Mean: AttackResult(tries=2930.96, successes=1930.96, failures=1000.0,
+    probability=0.6311089252314934)
+## Analysis results:
+# Params: AttackParameters(tries=10000, multiplicity=31, failure_threshold=1000.0)
+# Mean: AttackResult(tries=6198.15, successes=5217.77, failures=980.38,
+    probability=0.8185881017379056)
+```
+
 ### II.
 
 Zmianie ulega brzmienie sekcji "Przebieg eksperymentu" otrzymując następujące
@@ -53,11 +76,12 @@ Każdy scenariusz zawiera definicję następujących parametrów:
  - Typ grafu: 
    - euklidesowy,
    - losowy ER,
- - Liczba wierzchołków grafu $n \in (10, 100, 1000)$,
+ - Liczba wierzchołków grafu $n \in (10, 100, 1000, 4000)$,
  - Liczba krawędzi grafu $m$: 
    - $m \in (20, 30, 40)$ dla $n=10$,
    - $m \in (200, 800, 1600)$ dla $n=100$,
-   - $m \in (4000, 8000, 16000)$ dla $n=1000$
+   - $m \in (4000, 8000, 16000)$ dla $n=1000$,
+   - $m \in (20000)$ dla $n=4000$.
 
 Analiza każdego ze scenariuszy obejmuje kolejne analizy ataków o zwiększającej
 się krotności $c$ (liczba atakowanych na raz krawędzi). Krotności ataków przyjmują
@@ -67,7 +91,7 @@ Analiza jest przeprowadzana zgodnie z następującym algorytmem:
  
 1. Wygenerowanie populacji $k$ grafów losowych o zadanych w danym scenariuszu
 parametrach,
-2. Dla kolejnych wartości krotności ataku:
+2. Dla kolejnych wartości krotności ataku wykonanie:
    1. Dla każdego z $k$ grafów z populacji wykonanie 10000 razy:
       1. Wylosowanie z grafu $c$ krawędzi,
       2. Usunięcie z grafu wylosowanych krawędzi,
@@ -81,6 +105,10 @@ parametrach,
 (uśrednionego dla badanej populacji) powodzenia ataku na graf od krotności tego
 ataku,
 3. Przyjęcie nowego scenariusza i powrót do punktu 1.
+
+Dodatkowo w celu zmniejszenia czasu obliczeń wprowadzono warunek stopu. Analiza
+danej populacji jest przerywana w chwili gdy średnie prawdopodobieństwo ataku
+dla danej krotności osąga wartość $1.0$ ( z dokładności $\varepsilon=0.01$). 
 
 ### III.
 
@@ -149,14 +177,29 @@ należy generować graf euklidesowy w celu uzyskania odpowiedninej liczby krawę
 
 $$\xi \approx \sqrt{\frac{2}{\pi} \frac{\bar{q}}{n (n-1)}}$$
 
+## Sprawdzenie poprawności działania modułu _attack.py_
+
+Poprawność działania modułu _attack.py_ została sprawdzona przez wywołanie
+metody _process_ na zestawie danych testowych zdefiniowanych w sekcji
+Testy poprawności rozwiązania sprawozdania nr 2. Wyniki analizy przedstawiają
+wykresy poniżej. Są one zgodne z przewodywaniami teoretycznymi, można więc
+założyć, że implementacja jest poprawna.
+
+![](in/plots/N2_M1_random.png)
+![](in/plots/N3_M2_random.png)
+![](in/plots/N3_M3_random.png) 
+![](in/plots/N4_M3_random.png)
+![](in/plots/N4_M4_random.png)
+![](in/plots/N4_M5_random.png)   
+
 ## Wyniki eksperymentu
 
 Eksperyment przeprowadzony został zgodnie z ustaleniami opisanymi w poprzednich
 sprawozdaniach z uwzględnieniem poprawek zawartych w Erracie.
 
-W każdym z przebiegów generowana była populacja grafów o zadanej wielkości
-i gęstości. Liczba usuniętych krawędzi, która spowodowała rozspójnienie grafu,
-została następnie uśredniona i umieszczona na odpowiednim wykresie.
+Poniżej przedstawiono wykresy zależności uśrednionego prawdoodobieństwa
+rozspójnienia grafu o zadanej liczbie wierzchołków i krawędzi od krotności
+przeprowadzanego ataku. 
 
 ### Grafy o 10 wierzchołkach
 
@@ -185,24 +228,41 @@ została następnie uśredniona i umieszczona na odpowiednim wykresie.
 ![](in/plots/N1000_M16000_euclidean.png)
 ![](in/plots/N1000_M16000_random.png)
 
-## Wnioski
+### Grafy o 4000 wierzchołkach
+![](in/plots/N4000_M20000_euclidean.png)
+![](in/plots/N4000_M20000_random.png)
+![](in/plots/N4000_M40000_euclidean.png)
+![](in/plots/N4000_M40000_random.png)
 
-Na podstawie niniejszych badań sformułowano wnioski, które przedstawione są
+## Wnioski i obserwacje
+
+Na podstawie przeprowadzonych badań zostały sformułowane wnioski przedstawione
 poniżej.
 
-Analiza wyników eksperymentu i porównanie wykresów pozwoliło na wysnucie wniosku
-o większej podatności na rozspójnienie przy ataku na losowe krawędzie, grafów
-euklidesowych niż losowych Erdosa-Renyi.
+Analiza wyników i porównanie wygenerowanych wykresów (przesunięcie wykresów w
+lewo dla grafów euklidesowych) pozwala na stwierdzenie, że grafy euklidesowe
+są bardziej podatne na rozspójnienie przy ataku na losowe krawędzie, od grafów
+losowycho Erdosa-Renyi o porównywalnej liczbie wierzchołków i krawędzi.
 
-Wynik ten jest zgodny z teorią ujętą w książce "Grafy i sieci" [\[4\]]() w
+Obserwacja ta jest zgodna z teorią ujętą w książce "Grafy i sieci" [\[4\]]() w
 podrozdziale 17.6. Autor książki wskazuje, że grafy euklidesowowe składają się 
 z wielu silnie spójnych składowych połączonych ze sobą niewielką ilością mostów.
-Taka charakterystyka sprawia, że są one bardziej wrażliwe na ataki gdyż wystarczy
-wylosować mosty.
+Są one więc bardziej wrażliwe na ataki gdyż wystarczy zaatakować tylko kilka
+kluczowych krawędzi w celu rozspójnienia.
 
 Ponadto dla obu typów grafów można zaobserwować istnienie pewnej granicznej
-wartości krotności ataku poniżej, której nie jest możliwe powodzenie ataku.
-Jest ona wyraźnie zależna od liczby krawędzi grafu i wzrasta wraz z nią. 
+krotności ataku poniżej, której praktycznie nie jest możliwe zakończenie ataku
+sukcesem i rozspójnienie grafu. Wartość ta jst wyraźnie zależna od liczby
+krawędzi grafu i wzrasta wraz z nią. Natomiast kształty wykresów po przekroczeniu
+tej wartości wykazują lekkie różnice dla grafów losowych i euklidesowych.
+Dla grafów euklidesowych maksymalna wartość prawdopodobieństwa $1.0$ osiągana jest
+w sposób gwałtowny. Dla grafów euklidesowych zaś wykres zbiega do wartości $1.0$
+o wiele łagodniej. 
+
+Można również zaobserwować, że wraz ze wzrostem rozmiaru grafów różnice między
+obiema klasami grafów zaczynają się zacierać. I tak dla grafów o 1000
+wierzchołków i 16000 krawędzi oraz dla grafów o 4000 wierzchołków wykresy
+dla obu typów są niemal identyczne.
 
 ## Bibliografia
 
@@ -998,6 +1058,7 @@ def plot_results(pparams, results):
     y = [r.mean.probability for r in results]
     plt.plot(x, y, '--ro')
     axes = plt.gca()
+    axes.set_xlim([0, pparams.m])
     axes.set_ylim([0, 1.1])
     plt.grid(True)
     gtype = {
@@ -1017,64 +1078,69 @@ def plot_results(pparams, results):
 
 POPULATION_SIZE = 100
 
-ATTACK_TRIES = 1000
+ATTACK_TRIES = 10000
 
 FAILURE_THRESHOLD = ATTACK_TRIES/10
 
 test_data_sets = [
-        (PopulationParameters(POPULATION_SIZE, "random", 2, 1), 0),
-        (PopulationParameters(POPULATION_SIZE, "random", 3, 2), 0),
-        (PopulationParameters(POPULATION_SIZE, "random", 3, 3), 0),
-        (PopulationParameters(POPULATION_SIZE, "random", 4, 3), 0),
-        (PopulationParameters(POPULATION_SIZE, "random", 4, 4), 1),
-        (PopulationParameters(POPULATION_SIZE, "random", 4, 5), 2),
+        PopulationParameters(POPULATION_SIZE, "random", 2, 1),
+        PopulationParameters(POPULATION_SIZE, "random", 3, 2),
+        PopulationParameters(POPULATION_SIZE, "random", 3, 3),
+        PopulationParameters(POPULATION_SIZE, "random", 4, 3),
+        PopulationParameters(POPULATION_SIZE, "random", 4, 4),
+        PopulationParameters(POPULATION_SIZE, "random", 4, 5),
     ]
 
 data_sets_10 = [
-    (PopulationParameters(POPULATION_SIZE, "random", 10, 20), 4),
-    (PopulationParameters(POPULATION_SIZE, "euclidean", 10, 20), 4),
-    (PopulationParameters(POPULATION_SIZE, "random", 10, 30), 4),
-    (PopulationParameters(POPULATION_SIZE, "euclidean", 10, 30), 4),
-    (PopulationParameters(POPULATION_SIZE, "random", 10, 40), 5),
-    (PopulationParameters(POPULATION_SIZE, "euclidean", 10, 40), 5)
+    PopulationParameters(POPULATION_SIZE, "random", 10, 20),
+    PopulationParameters(POPULATION_SIZE, "euclidean", 10, 20),
+    PopulationParameters(POPULATION_SIZE, "random", 10, 30),
+    PopulationParameters(POPULATION_SIZE, "euclidean", 10, 30),
+    PopulationParameters(POPULATION_SIZE, "random", 10, 40),
+    PopulationParameters(POPULATION_SIZE, "euclidean", 10, 40),
 ]
 
 data_sets_100 = [
-    (PopulationParameters(POPULATION_SIZE, "random", 100, 200), 7),
-    (PopulationParameters(POPULATION_SIZE, "euclidean", 100, 200), 7),
-    (PopulationParameters(POPULATION_SIZE, "random", 100, 800), 9),
-    (PopulationParameters(POPULATION_SIZE, "euclidean", 100, 800), 9),
-    (PopulationParameters(POPULATION_SIZE, "random", 100, 1600), 10),
-    (PopulationParameters(POPULATION_SIZE, "euclidean", 100, 1600), 10),
+    PopulationParameters(POPULATION_SIZE, "random", 100, 200),
+    PopulationParameters(POPULATION_SIZE, "euclidean", 100, 200),
+    PopulationParameters(POPULATION_SIZE, "random", 100, 800),
+    PopulationParameters(POPULATION_SIZE, "euclidean", 100, 800),
+    PopulationParameters(POPULATION_SIZE, "random", 100, 1600),
+    PopulationParameters(POPULATION_SIZE, "euclidean", 100, 1600),
 ]
 
 data_sets_1000 = [
-    (PopulationParameters(POPULATION_SIZE, "random", 1000, 4000), 11),
-    (PopulationParameters(POPULATION_SIZE, "euclidean", 1000, 4000), 11),
-    (PopulationParameters(POPULATION_SIZE, "random", 1000, 8000), 12),
-    (PopulationParameters(POPULATION_SIZE, "euclidean", 1000, 8000), 12),
-    (PopulationParameters(POPULATION_SIZE, "random", 1000, 16000), 13),
-    (PopulationParameters(POPULATION_SIZE, "euclidean", 1000, 16000), 13),
+    PopulationParameters(POPULATION_SIZE, "random", 1000, 4000),
+    PopulationParameters(POPULATION_SIZE, "euclidean", 1000, 4000),
+    PopulationParameters(POPULATION_SIZE, "random", 1000, 8000),
+    PopulationParameters(POPULATION_SIZE, "euclidean", 1000, 8000),
+    PopulationParameters(POPULATION_SIZE, "random", 1000, 16000),
+    PopulationParameters(POPULATION_SIZE, "euclidean", 1000, 16000),
+]
+
+data_sets_4000 = [
+    PopulationParameters(POPULATION_SIZE, "random", 4000, 20000),
+    PopulationParameters(POPULATION_SIZE, "euclidean", 4000, 20000)
 ]
 
 all_data_sets = data_sets_10 + data_sets_100 + data_sets_1000
 
 
-def process(data_sets=all_data_sets, is_test=False):
+def process(data_sets=all_data_sets, is_test=False, truncate=False):
     """ Performs experiment by performing series of attack analysis over
     graph populations defined in data sets.
 
     :param data_sets: List of experiment run definitions.
     :param is_test: Defaults False.
+    :param truncate: If analysis should stop when probability reaches 0.
     :return:
     """
-    for pparam, max_exponent in data_sets:
+    for pparam in data_sets:
         print(f"### Analysing graph population defined by: {pparam}")
         if is_test:
             pparam = PopulationParametersTest(*pparam, None)
         population = generate_graph_population(*pparam)
         results = []
-        #for exponent in range(max_exponent+1):
         for i in range(20):
             attack_parameters = AttackParameters(ATTACK_TRIES,
                                                  int(1+i*(pparam.m/20)),
@@ -1084,7 +1150,8 @@ def process(data_sets=all_data_sets, is_test=False):
             print(f"## Analysis results:\n"
                   f"# Params: {result.attack_parameters}\n"
                   f"# Mean: {result.mean}")
-            if math.isclose(result.mean.probability, 1.0,  abs_tol=0.01):
+            if truncate and math.isclose(result.mean.probability, 1.0,
+                                         abs_tol=0.01):
                 break
         plot_results(pparam, results)
     return None
@@ -1096,5 +1163,5 @@ def test():
 
 if __name__ == '__main__':
     process()
-   
+
 ```
