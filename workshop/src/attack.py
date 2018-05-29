@@ -244,17 +244,17 @@ def plot_results(pparams, results):
 
 POPULATION_SIZE = 100
 
-ATTACK_TRIES = 1000
+ATTACK_TRIES = 10000
 
 FAILURE_THRESHOLD = ATTACK_TRIES/10
 
 test_data_sets = [
-        (PopulationParameters(POPULATION_SIZE, "random", 2, 1), 0),
-        (PopulationParameters(POPULATION_SIZE, "random", 3, 2), 0),
-        (PopulationParameters(POPULATION_SIZE, "random", 3, 3), 0),
-        (PopulationParameters(POPULATION_SIZE, "random", 4, 3), 0),
-        (PopulationParameters(POPULATION_SIZE, "random", 4, 4), 1),
-        (PopulationParameters(POPULATION_SIZE, "random", 4, 5), 2),
+        PopulationParameters(POPULATION_SIZE, "random", 2, 1),
+        PopulationParameters(POPULATION_SIZE, "random", 3, 2),
+        PopulationParameters(POPULATION_SIZE, "random", 3, 3),
+        PopulationParameters(POPULATION_SIZE, "random", 4, 3),
+        PopulationParameters(POPULATION_SIZE, "random", 4, 4),
+        PopulationParameters(POPULATION_SIZE, "random", 4, 5),
     ]
 
 data_sets_10 = [
@@ -282,6 +282,11 @@ data_sets_1000 = [
     PopulationParameters(POPULATION_SIZE, "euclidean", 1000, 8000),
     PopulationParameters(POPULATION_SIZE, "random", 1000, 16000),
     PopulationParameters(POPULATION_SIZE, "euclidean", 1000, 16000),
+]
+
+data_sets_4000 = [
+    PopulationParameters(POPULATION_SIZE, "random", 4000, 40000),
+    PopulationParameters(POPULATION_SIZE, "euclidean", 4000, 40000)
 ]
 
 all_data_sets = data_sets_10 + data_sets_100 + data_sets_1000
