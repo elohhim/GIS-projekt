@@ -1,6 +1,7 @@
 import random
 import math
 from collections import namedtuple
+from itertools import zip_longest
 
 import igraph
 import numpy as np
@@ -192,7 +193,6 @@ PopulationParameters = namedtuple("PopulationParameters",
 PopulationParametersTest = namedtuple("PopulationParametersTest",
                                       "size graph_type n m epsilon")
 
-
 AttackParameters = namedtuple("AttackParameters",
                               "tries multiplicity failure_threshold")
 
@@ -236,15 +236,78 @@ def plot_results(pparams, results):
               f" {pparams.n} wierzchołkach i {pparams.m} krawędziach")
     plt.xlabel("Liczba atakowanych krawędzi")
     plt.ylabel("Prawdopodobienstwo powodzenia ataku")
-    # for x, y in zip(x, y):
-    #     ax.annotate(f"({x}, {y:.2f})", xy=(x, y), textcoords='data', fontsize=3)
     file_name = f"N{pparams.n}_M{pparams.m}_{pparams.graph_type}"
     plt.savefig(f"plots/{file_name}.png", dpi=300)
 
 
-POPULATION_SIZE = 100
+def plot_results2(pp1, pp2, results1, results2, layout="horizontal"):
+    """Plots population comparision analysis results into file.
+    """
+    layout_spec = {
+        "horizontal": (1, 2),
+        "vertical": (2, 1)
+    }[layout]
+    figsize = {
+        "horizontal": (16, 6),
+        "vertical": (8, 12)
+    }[layout]
 
-ATTACK_TRIES = 10000
+    fig = plt.figure(figsize=figsize)
+
+    # Plotting results on one subplot
+    ax1 = fig.add_subplot(*layout_spec, 1)
+    ax1.set_yscale('log')
+
+    def add_plot(results, pp, style, label_prefix):
+        labels = {
+            "random": "grafy ER",
+            "euclidean": "grafy euklidesowe"
+        }
+        x = [r.attack_parameters.multiplicity for r in results]
+        y = [r.mean.probability for r in results]
+        plt.plot(x, y, style, label=f"{label_prefix} - {labels[pp.graph_type]}")
+
+    add_plot(results1, pp1, '--ro', "P1")
+    add_plot(results2, pp2, '--bs', "P2")
+    axes = plt.gca()
+    axes.set_xlim([0, max(pp1.m, pp2.m)])
+    axes.set_ylim([1e-3, 1.1])
+    plt.xlabel("Liczba atakowanych krawędzi")
+    plt.ylabel("Prawdopodobienstwo powodzenia ataku")
+    plt.grid(True, which="both")
+    ax1.legend()
+    # Plotting difference on second subplot
+    ax2 = fig.add_subplot(*layout_spec, 2)
+    x = [r.attack_parameters.multiplicity
+         for r in max(results1, results2, key=len)]
+    pairs = zip_longest((r.mean.probability for r in results1),
+                        (r.mean.probability for r in results2), fillvalue=1.0)
+    dy = [r1 - r2 for r1, r2 in pairs]
+    plt.plot(x, dy, '--gd', label="P1 - P2")
+    plt.xlabel("Liczba atakowanych krawędzi")
+    plt.ylabel("Różnica prawdopodobienstw powodzenia ataku")
+    plt.grid(True)
+    plt.axhline(0, color='black')
+    ax2.legend()
+    gtype = {
+        "random": "losowych ER",
+        "euclidean": "euklidesowych"
+    }
+
+    title = (f"Analiza porównawcza ataków na populacje:\n"
+             f" - {pp1.size} grafów {gtype[pp1.graph_type]} o "
+             f"{pp1.n} wierzchołkach i {pp1.m} krawędziach\n"
+             f" - {pp2.size} grafów {gtype[pp2.graph_type]} o "
+             f"{pp2.n} wierzchołkach i {pp2.m} krawędziach")
+    plt.suptitle(title)
+    file_name = "_".join([f"N{pp1.n}", "M{pp1.m}", pp1.graph_type, "vs",
+                         pp2.graph_type, layout])
+    plt.savefig(f"plots/{file_name}.png", dpi=300)
+
+
+POPULATION_SIZE = 10
+
+ATTACK_TRIES = 10
 
 FAILURE_THRESHOLD = ATTACK_TRIES/10
 
@@ -292,35 +355,68 @@ data_sets_4000 = [
 all_data_sets = data_sets_10 + data_sets_100 + data_sets_1000
 
 
+def process_data_set(pparam, truncate):
+    """Process attack analysis over defined population.
+
+    :param pparam: Population definition.
+    :param truncate: If analysis should stop when probability reaches 1.
+    :return: Analysis results.
+    """
+    population = generate_graph_population(*pparam)
+    results = []
+    for i in range(20):
+        attack_parameters = AttackParameters(ATTACK_TRIES,
+                                             int(1 + i * (pparam.m / 20)),
+                                             FAILURE_THRESHOLD)
+        result = analyse_population_attack(population, attack_parameters)
+        results.append(result)
+        print(f"## Analysis results:\n"
+              f"# Params: {result.attack_parameters}\n"
+              f"# Mean: {result.mean}")
+        if truncate and math.isclose(result.mean.probability, 1.0,
+                                     abs_tol=0.01):
+            break
+    plot_results(pparam, results)
+    return results
+
+
 def process(data_sets=all_data_sets, is_test=False, truncate=False):
-    """ Performs experiment by performing series of attack analysis over
+    """Performs experiment by performing series of attack analysis over
     graph populations defined in data sets.
 
     :param data_sets: List of experiment run definitions.
     :param is_test: Defaults False.
-    :param truncate: If analysis should stop when probability reaches 0.
+    :param truncate: See process_data_set truncate param.
     :return:
     """
     for pparam in data_sets:
         print(f"### Analysing graph population defined by: {pparam}")
         if is_test:
             pparam = PopulationParametersTest(*pparam, None)
-        population = generate_graph_population(*pparam)
-        results = []
-        for i in range(20):
-            attack_parameters = AttackParameters(ATTACK_TRIES,
-                                                 int(1+i*(pparam.m/20)),
-                                                 FAILURE_THRESHOLD)
-            result = analyse_population_attack(population, attack_parameters)
-            results.append(result)
-            print(f"## Analysis results:\n"
-                  f"# Params: {result.attack_parameters}\n"
-                  f"# Mean: {result.mean}")
-            if truncate and math.isclose(result.mean.probability, 1.0,
-                                         abs_tol=0.01):
-                break
-        plot_results(pparam, results)
+        process_data_set(pparam, truncate)
     return None
+
+
+def process_pairs(data_sets=all_data_sets):
+    """ Performs experiment by performing series of attack analysis over
+    graph populations defined in data sets.
+
+    :param data_sets: List of experiment run definitions.
+    :param is_test: Defaults False.
+    :param truncate: If analysis should stop when probability reaches 1.
+    """
+    it = iter(data_sets)
+    pairs = zip(it, it)
+    print(pairs)
+    for data_set1, data_set2 in pairs:
+        print(f"### Comapring graph populations defined by:\n"
+              f"\t- {data_set1}\n"
+              f"\t- {data_set2}")
+        results1 = process_data_set(data_set1, True)
+        results2 = process_data_set(data_set2, True)
+        plot_results2(data_set1, data_set2, results1, results2, "horizontal")
+        plot_results2(data_set1, data_set2, results1, results2, "vertical")
+
 
 
 def test():
