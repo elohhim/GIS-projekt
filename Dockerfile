@@ -7,6 +7,5 @@ RUN apt-get -y install build-essential libxml2-dev zlib1g-dev python-dev python-
 RUN apt-get -y install texlive texlive-latex-extra vim aspell
 RUN apt-get -y install graphviz
 RUN pip install --upgrade pip
-RUN pip install python-igraph
-RUN pip install cairocffi
+RUN pip install python-igraph numpy matplotlib cairocffi
 USER jovyan
