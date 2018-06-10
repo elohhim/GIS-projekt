@@ -407,4 +407,4 @@ def test():
 
 
 if __name__ == '__main__':
-    process()
+    process_pairs(multithreaded=True)
