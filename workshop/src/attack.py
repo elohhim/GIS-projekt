@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import random
 import math
 import multiprocessing
@@ -7,6 +8,8 @@ from itertools import zip_longest
 
 import igraph
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 
@@ -184,9 +187,9 @@ def analyse_population_attack(population, attack_parameters,
     :return:
     """
     if multithreaded:
-        pool = multiprocessing.Pool()
-        results = list(pool.map(partial(analyse_task, attack_parameters),
-                                population))
+        with multiprocessing.Pool() as pool:
+            results = list(pool.map(partial(analyse_task, attack_parameters),
+                           population))
     else:
         results = [analyse_graph_attack(g, *attack_parameters)
                    for g in population]
@@ -282,16 +285,16 @@ def plot_results2(pp1, pp2, results1, results2, layout="horizontal"):
     file_name = "_".join([f"N{pp1.n}", f"M{pp1.m}", pp1.graph_type, "vs",
                          pp2.graph_type, layout])
     plt.savefig(f"plots/{file_name}.png", dpi=300)
-    with open(f"plots/{file_name}.txt") as f:
+    with open(f"plots/{file_name}.txt", "w") as f:
         lines = (f"{x1}\t{y1}\t{x2}\t{y2}\t{x3}\t{y3}"
                  for x1, y1, x2, y2, x3, y3
                  in zip_longest(X1, Y1, X2, Y2, X3, Y3))
         f.writelines("\n".join(lines))
 
 
-POPULATION_SIZE = 10
+POPULATION_SIZE = 100
 
-ATTACK_TRIES = 10
+ATTACK_TRIES = 1000
 
 FAILURE_THRESHOLD = ATTACK_TRIES/10
 
@@ -332,8 +335,12 @@ data_sets_1000 = [
 ]
 
 data_sets_4000 = [
+    PopulationParameters(POPULATION_SIZE, "random", 4000, 20000),
+    PopulationParameters(POPULATION_SIZE, "euclidean", 4000, 20000),
     PopulationParameters(POPULATION_SIZE, "random", 4000, 40000),
-    PopulationParameters(POPULATION_SIZE, "euclidean", 4000, 40000)
+    PopulationParameters(POPULATION_SIZE, "euclidean", 4000, 40000),
+    PopulationParameters(POPULATION_SIZE, "random", 4000, 60000),
+    PopulationParameters(POPULATION_SIZE, "euclidean", 4000, 60000)
 ]
 
 all_data_sets = data_sets_10 + data_sets_100 + data_sets_1000
@@ -407,4 +414,4 @@ def test():
 
 
 if __name__ == '__main__':
-    process_pairs(multithreaded=True)
+    process_pairs(data_sets_4000, multithreaded=True)
