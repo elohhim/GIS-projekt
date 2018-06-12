@@ -12,7 +12,7 @@ in=in/raport.md
 out="GIS_Kocielnik_Kumor_Sprawozdanie_3.pdf"
 
 all: $(in)
-	pandoc $(in) -o $(out)
+	pandoc $(in) -H setup.tex -o $(out)
 #    xdg-open $(out)
 
 ed:
@@ -22,7 +22,7 @@ spellcheck:
 	aspell -c $(in) -d pl
 
 pub:
-	pandoc $(in) -H quote-setup.tex -o $(out)
+	pandoc $(in) -H setup.tex -o $(out)
 
 show:
 	xdg-open $(out)

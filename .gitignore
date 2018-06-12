@@ -2,3 +2,4 @@
 .prev
 *.log
 *.out
+.idea/*

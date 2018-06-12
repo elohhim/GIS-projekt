@@ -177,20 +177,161 @@ należy generować graf euklidesowy w celu uzyskania odpowiedninej liczby krawę
 
 $$\xi \approx \sqrt{\frac{2}{\pi} \frac{\bar{q}}{n (n-1)}}$$
 
+---
+
+## Sprawozdanie nr 3
+
 ## Sprawdzenie poprawności działania modułu _attack.py_
 
 Poprawność działania modułu _attack.py_ została sprawdzona przez wywołanie
 metody _process_ na zestawie danych testowych zdefiniowanych w sekcji
-Testy poprawności rozwiązania sprawozdania nr 2. Wyniki analizy przedstawiają
-wykresy poniżej. Są one zgodne z przewodywaniami teoretycznymi, można więc
-założyć, że implementacja jest poprawna.
+Testy poprawności rozwiązania sprawozdania nr 2. Wyniki analizy przedstawia 
+tabela poniżej. Są one zgodne z przewodywaniami teoretycznymi, można więc
+założyć, że implementacja rozwiązania jest poprawna.
 
-![](plots/N2_M1_random.png)
-![](plots/N3_M2_random.png)
-![](plots/N3_M3_random.png) 
-![](plots/N4_M3_random.png)
-![](plots/N4_M4_random.png)
-![](plots/N4_M5_random.png)   
+\begin{table}[]
+\centering
+\caption{My caption}
+\label{my-label}
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+\textbf{Liczba wierzchołków} & \textbf{Liczba krawędzi} & \textbf{Krotność ataku} & \textbf{Wyznaczone prawdopodobieństwo} & \textbf{Oczekiwane prawdopodobieństwo} \\ \hline
+2                            & 1                        & 1                       & 1.0                                    & 1.0                                    \\ \hline
+\multirow{2}{*}{3}           & \multirow{2}{*}{2}       & 1                       & 1.0                                    & 1.0                                    \\ \cline{3-5} 
+                             &                          & 2                       & 1.0                                    & 1.0                                    \\ \hline
+\multirow{3}{*}{3}           & \multirow{3}{*}{3}       & 1                       & 0.0                                    & 0.0                                    \\ \cline{3-5} 
+                             &                          & 2                       & 1.0                                    & 1.0                                    \\ \cline{3-5} 
+                             &                          & 3                       & 1.0                                    & 1.0                                    \\ \hline
+\multirow{3}{*}{4}           & \multirow{3}{*}{3}       & 1                       & 0.809                                  & 0.8                                    \\ \cline{3-5} 
+                             &                          & 2                       & 1.0                                    & 1.0                                    \\ \cline{3-5} 
+                             &                          & 3                       & 1.0                                    & 1.0                                    \\ \hline
+\multirow{4}{*}{4}           & \multirow{4}{*}{4}       & 1                       & 0.198                                  & 0.2                                    \\ \cline{3-5} 
+                             &                          & 2                       & 1.0                                    & 1.0                                    \\ \cline{3-5} 
+                             &                          & 3                       & 1.0                                    & 1.0                                    \\ \cline{3-5} 
+                             &                          & 4                       & 1.0                                    & 1.0                                    \\ \hline
+\multirow{5}{*}{4}           & \multirow{5}{*}{5}       & 1                       & 0.0                                    & 0.0                                    \\ \cline{3-5} 
+                             &                          & 2                       & 0.199                                  & 0.2                                    \\ \cline{3-5} 
+                             &                          & 3                       & 1.0                                    & 1.0                                    \\ \cline{3-5} 
+                             &                          & 4                       & 1.0                                    & 1.0                                    \\ \cline{3-5} 
+                             &                          & 5                       & 1.0                                    & 1.0                                    \\ \hline
+\end{tabular}
+\end{table}
+
+<!--<table>
+    <thead>
+        <tr>
+            <th>Liczba wierzchołków</th>
+            <th>Liczba krawędzi</th>
+            <th>Krotność ataku</th>
+            <th>Wyznaczone prawdopodobieństwo</th>
+            <th>Oczekiwane prawdopodobieństwo</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>2</td>
+            <td>1</td>
+            <td>1</td>
+            <td>1.0</td>
+            <td>1.0</td>
+        </tr>
+        <tr>
+            <td rowspan=2>3</td>
+            <td rowspan=2>2</td>
+            <td>1</td>
+            <td>1.0</td>
+            <td>1.0</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>1.0</td>
+            <td>1.0</td>
+        </tr>
+        <tr>
+            <td rowspan=3>3</td>
+            <td rowspan=3>3</td>
+            <td>1</td>
+            <td>0.0</td>
+            <td>0.0</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>1.0</td>
+            <td>1.0</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>1.0</td>
+            <td>1.0</td>
+        </tr>
+        <tr>
+            <td rowspan=3>4</td>
+            <td rowspan=3>3</td>
+            <td>1</td>
+            <td>0.809</td>
+            <td>0.8</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>1.0</td>
+            <td>1.0</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>1.0</td>
+            <td>1.0</td>
+        </tr>
+        <tr>
+            <td rowspan=4>4</td>
+            <td rowspan=4>4</td>
+            <td>1</td>
+            <td>0.198</td>
+            <td>0.2</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>1.0</td>
+            <td>1.0</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>1.0</td>
+            <td>1.0</td>
+        </tr>
+        <tr>
+            <td>4</td>
+            <td>1.0</td>
+            <td>1.0</td>
+        </tr>
+        <tr>
+            <td rowspan=5>4</td>
+            <td rowspan=5>5</td>
+            <td>1</td>
+            <td>0.0</td>
+            <td>0.0</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>0.199</td>
+            <td>0.2</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>1.0</td>
+            <td>1.0</td>
+        </tr>
+        <tr>
+            <td>4</td>
+            <td>1.0</td>
+            <td>1.0</td>
+        </tr>
+        <tr>
+            <td>5</td>
+            <td>1.0</td>
+            <td>1.0</td>
+        </tr>
+    </tbody>
+</table>-->
 
 ## Wyniki eksperymentu
 
@@ -203,36 +344,26 @@ przeprowadzanego ataku.
 
 ### Grafy o 10 wierzchołkach
 
-![](plots/N10_M20_euclidean.png)
-![](plots/N10_M20_random.png)
-![](plots/N10_M30_euclidean.png)
-![](plots/N10_M30_random.png)
-![](plots/N10_M40_euclidean.png)
-![](plots/N10_M40_random.png)
+![](plots/N10_M20_random_vs_euclidean_vertical.png)
+![](plots/N10_M30_random_vs_euclidean_vertical.png)
+![](plots/N10_M40_random_vs_euclidean_vertical.png)
 
 ### Grafy o 100 wierzchołkach
 
-![](plots/N100_M200_euclidean.png)
-![](plots/N100_M200_random.png)
-![](plots/N100_M800_euclidean.png)
-![](plots/N100_M800_random.png)
-![](plots/N100_M1600_euclidean.png)
-![](plots/N100_M1600_random.png)
+![](plots/N100_M200_random_vs_euclidean_vertical.png)
+![](plots/N100_M800_random_vs_euclidean_vertical.png)
+![](plots/N100_M1600_random_vs_euclidean_vertical.png)
  
 ### Grafy o 1000 wierzchołkach
 
-![](plots/N1000_M4000_euclidean.png)
-![](plots/N1000_M4000_random.png)
-![](plots/N1000_M8000_euclidean.png)
-![](plots/N1000_M8000_random.png)
-![](plots/N1000_M16000_euclidean.png)
-![](plots/N1000_M16000_random.png)
+![](plots/N1000_M4000_random_vs_euclidean_vertical.png)
+![](plots/N1000_M8000_random_vs_euclidean_vertical.png)
+![](plots/N1000_M16000_random_vs_euclidean_vertical.png)
 
 ### Grafy o 4000 wierzchołkach
-![](plots/N4000_M20000_euclidean.png)
-![](plots/N4000_M20000_random.png)
-![](plots/N4000_M40000_euclidean.png)
-![](plots/N4000_M40000_random.png)
+![](plots/N4000_M20000_random_vs_euclidean_vertical.png)
+![](plots/N4000_M40000_random_vs_euclidean_vertical.png)
+![](plots/N4000_M60000_random_vs_euclidean_vertical.png)
 
 ## Wnioski i obserwacje
 
@@ -242,7 +373,8 @@ poniżej.
 Analiza wyników i porównanie wygenerowanych wykresów (przesunięcie wykresów w
 lewo dla grafów euklidesowych) pozwala na stwierdzenie, że grafy euklidesowe
 są bardziej podatne na rozspójnienie przy ataku na losowe krawędzie, od grafów
-losowycho Erdosa-Renyi o porównywalnej liczbie wierzchołków i krawędzi.
+losowych Erdosa-Renyi o porównywalnej liczbie wierzchołków i krawędzi. Ulegają
+one rozspójnieniu przy niższej krotności ataku.
 
 Obserwacja ta jest zgodna z teorią ujętą w książce "Grafy i sieci" [\[4\]]() w
 podrozdziale 17.6. Autor książki wskazuje, że grafy euklidesowowe składają się 
@@ -250,19 +382,25 @@ z wielu silnie spójnych składowych połączonych ze sobą niewielką ilością
 Są one więc bardziej wrażliwe na ataki gdyż wystarczy zaatakować tylko kilka
 kluczowych krawędzi w celu rozspójnienia.
 
+Można również zaobserwować, że wraz ze wzrostem rozmiaru grafów różnice między
+obiema klasami grafów zaczynają się zacierać. I tak dla grafów o 1000
+wierzchołków i 16000 krawędzi oraz dla grafów o 4000 różnica między wykresami
+zaciera się i dla obu typów wartości prawdopodobieństwa przy danej krotności
+ataku są niemal identyczne.
+
 Ponadto dla obu typów grafów można zaobserwować istnienie pewnej granicznej
 krotności ataku poniżej, której praktycznie nie jest możliwe zakończenie ataku
 sukcesem i rozspójnienie grafu. Wartość ta jst wyraźnie zależna od liczby
 krawędzi grafu i wzrasta wraz z nią. Natomiast kształty wykresów po przekroczeniu
 tej wartości wykazują lekkie różnice dla grafów losowych i euklidesowych.
+
 Dla grafów euklidesowych maksymalna wartość prawdopodobieństwa $1.0$ osiągana jest
 w sposób gwałtowny. Dla grafów euklidesowych zaś wykres zbiega do wartości $1.0$
-o wiele łagodniej. 
+o wiele łagodniej i wartość $1.0$ osiągana jest dla większej krotności ataku.
+Objawia się to na wykresach z różnicą prawdopodobieństw powodzenia ataku gdzie 
+można zaobserwować charakterystyczny pik po prawej stronie. 
 
-Można również zaobserwować, że wraz ze wzrostem rozmiaru grafów różnice między
-obiema klasami grafów zaczynają się zacierać. I tak dla grafów o 1000
-wierzchołków i 16000 krawędzi oraz dla grafów o 4000 wierzchołków wykresy
-dla obu typów są niemal identyczne.
+
 
 ## Bibliografia
 
@@ -273,8 +411,6 @@ dla obu typów są niemal identyczne.
 
 \pagebreak
 ## ZAŁĄCZNIK 1: Oryginalna treść sprawozdania nr 2
-
-# SK6. Atak na sieć (II)
 
 ## Raport nr 2 do projektu w ramach kursu "Grafy i Sieci" (GIS) 
 
